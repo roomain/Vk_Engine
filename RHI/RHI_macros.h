@@ -12,6 +12,7 @@
 /*@brief declares init static function of reflective class*/
 #define INIT_REFLECT_CLASS_DECLARE(classname) \
 friend Is_reflective<classname>; \
+friend class RHIReflectData; \
 private: \
 static void init_reflect(classname& a_this); \
 public: \
