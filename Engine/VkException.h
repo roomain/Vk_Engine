@@ -16,7 +16,6 @@ private:
 	std::source_location m_srcLoc;
 	VkResult m_vkError;
 
-	static std::string toString(const VkResult& a_error);
 	static std::string errorDescription(const VkResult& a_error);
 
 public:

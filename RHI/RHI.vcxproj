@@ -146,14 +146,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
-    <ClInclude Include="RHILoadingUtility.h" />
     <ClInclude Include="pch.h" />
-    <ClInclude Include="RHIDeserializer.h" />
     <ClInclude Include="RHIManager.h" />
     <ClInclude Include="RHIReflectData.h" />
     <ClInclude Include="RHIReflectiveClassSet.h" />
-    <ClInclude Include="RHISerializable.h" />
-    <ClInclude Include="RHISerializer.h" />
     <ClInclude Include="RHIType_traits.h" />
     <ClInclude Include="RHI_globals.h" />
     <ClInclude Include="RHI_macros.h" />
@@ -166,8 +162,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="RHIDeserializer.cpp" />
-    <ClCompile Include="RHILoadingUtility.cpp" />
     <ClCompile Include="RHIManager.cpp" />
     <ClCompile Include="RHIReflectData.cpp" />
     <ClCompile Include="RHIReflectiveClassSet.cpp" />

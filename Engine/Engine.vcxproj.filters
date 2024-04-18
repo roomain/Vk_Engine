@@ -36,8 +36,11 @@
     <ClInclude Include="vk_check.h">
       <Filter>Fichiers d%27en-tête\macros</Filter>
     </ClInclude>
-    <ClInclude Include="vk_Exception.h">
+    <ClInclude Include="VkException.h">
       <Filter>Fichiers d%27en-tête\Exception</Filter>
+    </ClInclude>
+    <ClInclude Include="VkApplication.h">
+      <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -47,8 +50,11 @@
     <ClCompile Include="pch.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="vk_Exception.cpp">
+    <ClCompile Include="VkException.cpp">
       <Filter>Fichiers sources\Exception</Filter>
+    </ClCompile>
+    <ClCompile Include="VkApplication.cpp">
+      <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
