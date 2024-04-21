@@ -147,6 +147,7 @@
   <ItemGroup>
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="IRHICapabilitiesDisplayer.h" />
     <ClInclude Include="RHIFrameBuffer.h" />
     <ClInclude Include="RHIManager.h" />
     <ClInclude Include="RHIReflectData.h" />
