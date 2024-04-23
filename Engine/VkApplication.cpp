@@ -48,14 +48,20 @@ VkApplication::VkApplication()
 
 VkApplication::~VkApplication()
 {
+	release();
+}
+
+void VkApplication::release()
+{
 	// release all resources 
-	
+
 	// release all devices
 	m_devices.clear();
 
 	if (m_vulkanInstance != VK_NULL_HANDLE)
 	{
 		vkDestroyInstance(m_vulkanInstance, nullptr);
+		m_vulkanInstance = VK_NULL_HANDLE;
 		// todo
 	}
 }

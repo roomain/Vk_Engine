@@ -23,6 +23,7 @@ private:
 public:
 	VkApplication();
 	~VkApplication();
+	void release();
 
 	using device_const_iterator = std::vector<VkEngineDevicePtr>::const_iterator;
 	[[nodiscard]] constexpr device_const_iterator cbegin()const { return m_devices.cbegin(); }
