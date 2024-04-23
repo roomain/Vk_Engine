@@ -3,7 +3,7 @@ import parsing_class as PC
 from pathlib import Path
 
 
-print("Class Generator - {}".format(sys.argv))
+print("Class / Struct Generator - {}".format(sys.argv))
 print("parse header files and generate custom json serializer")
 if len(sys.argv) > 1:
     print("Parse headers from {}".format(sys.argv[1]))

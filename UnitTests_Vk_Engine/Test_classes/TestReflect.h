@@ -2,6 +2,19 @@
 #include "RHI_macros.h"
 #include <vector>
 
+REFLECT_CLASS(ReflectiveStruct)
+struct ReflectiveStruct
+{
+	REFLECT_MEMBER
+	int m_memberI;
+
+	REFLECT_MEMBER
+	float m_memberF;
+
+private:
+	DECLARE_REFLECT_CLASS(ReflectiveStruct)
+};
+
 REFLECT_CLASS(SubTestReflect)
 class SubTestReflect
 {

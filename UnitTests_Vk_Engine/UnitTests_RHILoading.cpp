@@ -41,5 +41,13 @@ namespace UnitTestsVkEngine
 			Assert::AreEqual(0, testReflect.getMemberI(), L"Wrong int value");
 			Assert::AreEqual(1.0f, testReflect.getMemberF(), L"Wrong float value");
 		}
+
+		TEST_METHOD(Test_loadStruct)
+		{
+			RHIManager::instance().loadConfiguration("..\\..\\test_resources");
+			ReflectiveStruct reflectStruct;
+			Assert::AreEqual(6, reflectStruct.m_memberI, L"Wrong int value");
+			Assert::AreEqual(8.56f, reflectStruct.m_memberF, L"Wrong float value");
+		}
 	};
 }

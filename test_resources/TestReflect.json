@@ -1,15 +1,19 @@
 {
-    "TestReflect" : {
-        "m_memberI" : 23,
-        "m_memberF" : 4.56,
-        "m_memberV" : [3, 5, 7, 9],
-        "m_subMember" : {
-            "m_memberI" : 21,
-            "m_memberF" : 5.6
-        }
-    },
-    "SubTestReflect" : {
-        "m_memberI" : 0,
-        "m_memberF" : 1.0
+  "ReflectiveStruct": {
+    "m_memberI": 6,
+    "m_memberF": 8.56
+  },
+  "TestReflect": {
+    "m_memberI": 23,
+    "m_memberF": 4.56,
+    "m_memberV": [ 3, 5, 7, 9 ],
+    "m_subMember": {
+      "m_memberI": 21,
+      "m_memberF": 5.6
     }
+  },
+  "SubTestReflect": {
+    "m_memberI": 0,
+    "m_memberF": 1.0
+  }
 }

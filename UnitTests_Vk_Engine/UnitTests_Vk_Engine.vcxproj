@@ -181,6 +181,9 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="Test_classes\TestReflect.h" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\test_resources\TestReflect.json" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

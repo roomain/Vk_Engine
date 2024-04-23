@@ -1,38 +1,48 @@
 #include "pch.h"
+#include <ranges>
+#include "vk_struct_display.h"
 #include "VkApplication.h"
 #include "vk_initializers.h"
 #include "vk_check.h"
 #include "IRHICapabilitiesDisplayer.h"
+#include "vk_parameters.h"
 #include "vk_enumToString.h"
-#include "vk_struct_display.h"
 
-
-VkApplication::VkApplication(const std::string_view a_appName, const int a_version)
+void VkApplication::createVulkanInstance(VkApplication* const a_this, const VKInstanceSettings& a_setting)
 {
-	VkApplicationInfo appInfo = gen_applicationInfo();
-	appInfo.pApplicationName = a_appName.data();
-	appInfo.pEngineName = "VulkanEngine";
-	appInfo.applicationVersion = a_version;
+	if (a_setting.isValid())
+	{
+		VkApplicationInfo appInfo = gen_applicationInfo();
+		appInfo.pApplicationName = a_setting.ApplicationName.c_str();
+		appInfo.pEngineName = a_setting.EngineName.c_str();
+		appInfo.applicationVersion = a_setting.AppVersion;
 
-	VkInstanceCreateInfo instanceInfo = gen_instanceCreateInfo();
-	instanceInfo.pApplicationInfo = &appInfo;
+		VkInstanceCreateInfo instanceInfo = gen_instanceCreateInfo();
+		instanceInfo.pApplicationInfo = &appInfo;
 
-	std::vector<const char*> vLayers;
-	/*std::transform(a_conf.instanceExtProps.cbegin(), a_conf.instanceExtProps.cend(), std::back_inserter(vLayers),
-		[](const auto& ext) {return ext.c_str(); });*/
-	vLayers.emplace_back(VK_EXT_VALIDATION_FLAGS_EXTENSION_NAME);
-	instanceInfo.ppEnabledLayerNames = vLayers.data();
-	instanceInfo.enabledLayerCount = static_cast<uint32_t>(vLayers.size());
+		std::vector<const char*> vLayers;
+		std::ranges::transform(a_setting.Layers.cbegin(), a_setting.Layers.cend(), std::back_inserter(vLayers),
+			[](const auto& ext) {return ext.c_str(); });
+		vLayers.emplace_back(VK_EXT_VALIDATION_FLAGS_EXTENSION_NAME);
+		instanceInfo.ppEnabledLayerNames = vLayers.data();
+		instanceInfo.enabledLayerCount = static_cast<uint32_t>(vLayers.size());
 
-	std::vector<const char*> vExtension;
-	/*std::transform(a_conf.instanceExtProps.cbegin(), a_conf.instanceExtProps.cend(), std::back_inserter(vExtension),
-		[](const auto& ext) {return ext.c_str(); });*/
-	vExtension.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-	vExtension.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-	instanceInfo.ppEnabledExtensionNames = vExtension.data();
-	instanceInfo.enabledExtensionCount = static_cast<uint32_t>(vExtension.size());
-	// todo
-	//VK_CHECK(vkCreateInstance())
+		std::vector<const char*> vExtension;
+		std::ranges::transform(a_setting.Extensions.cbegin(), a_setting.Extensions.cend(), std::back_inserter(vExtension),
+			[](const auto& ext) {return ext.c_str(); });
+		vExtension.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+		vExtension.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+		instanceInfo.ppEnabledExtensionNames = vExtension.data();
+		instanceInfo.enabledExtensionCount = static_cast<uint32_t>(vExtension.size());
+		// todo
+		VK_CHECK(vkCreateInstance(&instanceInfo, nullptr, &(a_this->m_vulkanInstance)))
+	}
+}
+
+VkApplication::VkApplication()
+{
+	VKInstanceSettings settings;
+	VkApplication::createVulkanInstance(this, settings);
 	// todo
 }
 
@@ -52,7 +62,9 @@ VkApplication::~VkApplication()
 
 VkEngineDevicePtr VkApplication::createDevice(const int a_devIndex)
 {
+	VkEngineDevicePtr device;
 	//todo
+	return device;
 }
 
 void VkApplication::displayInstanceCapabilities(IRHICapabilitiesDisplayer& a_displayer)

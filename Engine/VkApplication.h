@@ -11,16 +11,17 @@
 #include "VkEngineDevice.h"
 
 class IRHICapabilitiesDisplayer;
+struct VKInstanceSettings;
 
 class VkApplication
 {
 private:
 	VkInstance m_vulkanInstance = VK_NULL_HANDLE;	/*!< vulkan instance*/
 	std::vector<VkEngineDevicePtr> m_devices;		/*!< engine device list*/
-	//
+	static void createVulkanInstance(VkApplication* const a_this, const VKInstanceSettings& a_setting);
 
 public:
-	VkApplication(const std::string_view a_appName, const int a_version);
+	VkApplication();
 	~VkApplication();
 
 	using device_const_iterator = std::vector<VkEngineDevicePtr>::const_iterator;

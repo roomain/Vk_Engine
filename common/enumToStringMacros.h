@@ -1,6 +1,6 @@
 /***********************************************
 * @headerfile enumToStringMacros.h
-* @date 21 / O3 / 2024
+* @date 21 / 03 / 2024
 * @author Roomain
 ************************************************/
 #pragma once
@@ -52,7 +52,7 @@ public: \
         {\
             if(strValue.size() > 0) \
                 strValue += std::string("|"); \
-            strValue += ::to_string(value); \
+            strValue += #value; \
         }
 
 #define END_FLAG_TO_STRING \

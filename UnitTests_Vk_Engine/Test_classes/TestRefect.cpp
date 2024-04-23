@@ -2,6 +2,8 @@
 #include "TestReflect.h"
 #include "TestReflect.generated.h"
 
+IMPLEMENT_REFLECT_CLASS(ReflectiveStruct)
+
 IMPLEMENT_REFLECT_CLASS(SubTestReflect)
 
 int SubTestReflect::getMemberI()const

@@ -69,6 +69,7 @@ class HeaderParser:
             self.parseClass(file, classname)
 
     def __init__(self, filePath):
+        print("Parse file: {}".format(filePath))
         self.filePath = filePath
         self.classList = []
         self.classIndex = -1
