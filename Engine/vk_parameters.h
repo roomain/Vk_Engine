@@ -8,6 +8,7 @@
 #include <vector>
 #include <string>
 #include "vk_parameters.generated.h"
+#include "vk_From_string.h"
 
 struct VKSettings
 {
@@ -37,7 +38,30 @@ struct VKInstanceSettings : VKSettings
 		return !ApplicationName.empty() && !EngineName.empty() && AppVersion > 0;
 	}
 private:
-	DECLARE_REFLECT_CLASS(ReflectiveStruct)
+	DECLARE_REFLECT_CLASS(VKInstanceSettings)
 };
 
-IMPLEMENT_REFLECT_CLASS(ReflectiveStruct)
+IMPLEMENT_REFLECT_CLASS(VKInstanceSettings)
+
+
+
+REFLECT_CLASS(VKDeviceSettings)
+struct VKDeviceSettings : VKSettings
+{
+	int DeviceIndex = -1;
+
+	REFLECT_MEMBER;
+	std::vector<std::string> Layers;
+
+	REFLECT_MEMBER;
+	std::vector<std::string> Extensions;
+
+	bool isValid()const noexcept override
+	{
+		return DeviceIndex >= 0 /*todo*/;
+	}
+private:
+	DECLARE_REFLECT_CLASS(VKDeviceSettings)
+};
+
+IMPLEMENT_REFLECT_CLASS(VKDeviceSettings)

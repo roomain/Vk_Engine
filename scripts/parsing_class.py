@@ -46,8 +46,10 @@ class HeaderParser:
     def getMember(self, file):
         found = False
         while not file.atEnd() and not found:
-            line = self.removeComment(file, file.nextTrimmedLine())
+            line = self.removeComment(file, file.nextTrimmedLine())            
             member = re.search("(.*) (.*);.*", line)
+            if "=" in line : 
+                member = re.search("(.*)\s(.+)=(.*);.*", line)
             if member is not None:
                 self.classList[self.classIndex].members.append(PO.ClassMember(member.group(1), member.group(2)))
                 found = True

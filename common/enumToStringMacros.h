@@ -34,12 +34,12 @@
 */
 
 template<typename T>
-class Flag
+class FlagOutput
 {};
 
 #define BEGIN_FLAG_TO_STRING(Base, Type) \
 template<> \
-class Flag<Base>\
+class FlagOutput<Base>\
 {\
 public: \
     static [[nodiscard]] constexpr std::string to_string(const Type a_value) \

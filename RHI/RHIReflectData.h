@@ -8,44 +8,43 @@
 #include <list>
 #include <array>
 #include <memory>
+#include <functional>
 #include "not_copiable.h"
 #include "RHIType_traits.h"
 #include "RHIReflectiveClassSet.h"
-#include "boost/property_tree/ptree.hpp"
 #include "RHI_globals.h"
+#include "From_string.h"
 
 #pragma warning(push)
 #pragma warning(disable : 4275)
 #pragma warning(disable : 4251)
 
+
+
+using GetValueFromString = std::function<bool(const std::string&)>;
+using LoadInstance = std::function<void()>;
+
+struct RHIReflectData_intern;
+
+
+
 /*@brief represents a class content from json*/
 class RHI_EXPORT RHIReflectData
 {
 private:
-	boost::property_tree::ptree m_JsonContent;					/*!< Json class content*/
-	boost::property_tree::ptree* m_TempJsonContent = nullptr;	/*!< Temporary json class content (used for member with class type)*/
+	std::shared_ptr<RHIReflectData_intern> m_internData;
+	
 	static RHIReflectiveClassSetPtr m_reflectiveClasses;	/*!< link to reflective classes*/
 
-	template<typename Type> requires (!Is_reflective_v<Type>)
-	static bool basic_memberValue(const boost::property_tree::ptree& a_tree, Type& a_value) noexcept
-	{
-		try
-		{
-			a_value = a_tree.get_value<Type>();
-			return true;
-		}
-		catch (...)
-		{
-			return false;
-		}
-	}
-
-	bool getMemberJson(const std::string& a_memberName, boost::property_tree::ptree& a_tree)const;
+	bool memberValuesInternal(const RHIReflectDataPtr& a_reflecData, const std::string& a_memberName, const LoadInstance& a_callback)const;
+	bool memberValuesInternal(const std::string& a_memberName, const GetValueFromString& a_callback)const;
+	bool memberValueInternal(const std::string& a_memberName, std::string& a_value)const;
+	bool setTempTreeNode(const RHIReflectDataPtr& a_reflecData, const std::string& a_memberName)const;
+	static void releaseTempTreeNode(const RHIReflectDataPtr& a_reflecData);
 
 public:
 	NOT_COPIABLE(RHIReflectData)
-	explicit RHIReflectData(boost::property_tree::ptree&& a_JsonContent)noexcept : m_JsonContent{ a_JsonContent } {}
-	explicit RHIReflectData(const boost::property_tree::ptree& a_JsonContent) : m_JsonContent{ a_JsonContent } {}
+	explicit RHIReflectData(std::shared_ptr<RHIReflectData_intern> a_JsonContent)noexcept;
 	~RHIReflectData() = default;
 
 	static void setReflectiveClassSet(const RHIReflectiveClassSetPtr& a_classSet);
@@ -53,36 +52,31 @@ public:
 	template<typename Type>
 	bool memberValue(const std::string& a_memberName, std::vector<Type>& a_value)const noexcept
 	{
-		boost::property_tree::ptree memberJson;
-		if (getMemberJson(a_memberName, memberJson))
+		if constexpr (Is_reflective_v<Type> && Has_reflectName_v<Type>)
 		{
-			if constexpr (Is_reflective_v<Type> && Has_reflectName_v<Type>)
+			// is complex type
+			if (m_reflectiveClasses)
 			{
-				if (m_reflectiveClasses)
-				{
-					if (const auto iter = m_reflectiveClasses->find(Type::reflectName());
-						iter != m_reflectiveClasses->cend())
+				
+				return memberValuesInternal(m_reflectiveClasses, a_memberName, [&a_value]()
 					{
-						for (const auto& [name, prop] : memberJson)
-						{
-							iter->second->m_TempJsonContent = &prop;
-							a_value.emplace_back<Type>();
-							iter->second->m_TempJsonContent = nullptr;
-						}
+						a_value.emplace_back<Type>();
+					});
+			}
+		}
+		else
+		{
+			// is simple type
+			return memberValuesInternal(a_memberName, [&a_value](const std::string& a_strValue)
+				{
+					Type temp;
+					if (from_string(temp, a_strValue))
+					{
+						a_value.emplace_back(std::move(temp));
 						return true;
 					}
-				}
-			}
-			else
-			{
-				for (const auto& [name, prop] : memberJson)
-				{	
-					Type basic;
-					if(RHIReflectData::basic_memberValue(prop, basic))
-						a_value.emplace_back(basic);
-				}
-				return true;
-			}
+					return false;
+				});
 		}
 		return false;
 	}
@@ -90,114 +84,103 @@ public:
 	template<typename Type>
 	bool memberValue(const std::string& a_memberName, std::list<Type>& a_value)const noexcept
 	{
-		boost::property_tree::ptree memberJson;
-		if (getMemberJson(a_memberName, memberJson))
+		if constexpr (Is_reflective_v<Type> && Has_reflectName_v<Type>)
 		{
-			if constexpr (Is_reflective_v<Type> && Has_reflectName_v<Type>)
+			// is complex type
+			if (m_reflectiveClasses)
 			{
-				if (m_reflectiveClasses)
-				{
-					if (const auto iter = m_reflectiveClasses->find(Type::reflectName());
-						iter != m_reflectiveClasses->cend())
+
+				return memberValuesInternal(m_reflectiveClasses, a_memberName, [&a_value]()
 					{
-						for (const auto& [name, prop] : memberJson)
-						{
-							iter->second->m_TempJsonContent = &prop;
-							a_value.emplace_back<Type>();
-							iter->second->m_TempJsonContent = nullptr;
-						}
+						a_value.emplace_back<Type>();
+					});
+			}
+		}
+		else
+		{
+			// is simple type
+			return memberValuesInternal(a_memberName, [&a_value](const std::string& a_strValue)
+				{
+					Type temp;
+					if (from_string(temp, a_strValue))
+					{
+						a_value.emplace_back(std::move(temp));
 						return true;
 					}
-				}
-			}
-			else
-			{
-				for (const auto& [name, prop] : memberJson)
-				{
-					Type basic;
-					if (RHIReflectData::basic_memberValue(prop, basic))
-						a_value.emplace_back(basic);
-				}
-				return true;
-			}
+					return false;
+				});
 		}
 		return false;
 	}
-
+		
 	template<typename Type, size_t Size>
 	bool memberValue(const std::string& a_memberName, std::array<Type, Size>& a_value)const noexcept
 	{
-		boost::property_tree::ptree memberJson;
-		if (getMemberJson(a_memberName, memberJson))
+		size_t index = 0;
+		if constexpr (Is_reflective_v<Type> && Has_reflectName_v<Type>)
 		{
-			if constexpr (Is_reflective_v<Type> && Has_reflectName_v<Type>)
+			// is complex type
+			if (m_reflectiveClasses)
 			{
-				if (m_reflectiveClasses)
-				{
-					if (const auto iter = m_reflectiveClasses->find(Type::reflectName());
-						iter != m_reflectiveClasses->cend())
+
+				return memberValuesInternal(m_reflectiveClasses, a_memberName, [&a_value, &index]()
 					{
-						size_t index  = 0;
-						for (const auto& [name, prop] : memberJson)
+						if (a_value.size() < index)
 						{
-							if (index == Size)
-								break;
-							iter->second->m_TempJsonContent = &prop;
 							a_value[index] = Type{};
-							iter->second->m_TempJsonContent = nullptr;
-							index++;
+							++index;
 						}
+					});
+			}
+		}
+		else
+		{
+			// is simple type
+			return memberValues(a_memberName, [&a_value, &index](const std::string& a_strValue)
+				{
+					Type temp;
+					if ((a_value.size() < index) && from_string(temp, a_strValue))
+					{
+						a_value[index] = std::move(temp);
+						++index;
 						return true;
 					}
-				}
-			}
-			else
-			{
-				size_t index = 0;
-				for (const auto& [name, prop] : memberJson)
-				{
-					if (index == Size)
-						break;
-					Type basic;
-					if (RHIReflectData::basic_memberValue(prop, basic))
-						a_value[index] = basic;
-					index++;
-				}
-				return true;
-			}
+					return false;
+				});
 		}
 		return false;
 	}
-
 
 	template<typename Type>
 	bool memberValue(const std::string& a_memberName, Type& a_value)const noexcept
 	{
-		boost::property_tree::ptree memberJson;
-		if (getMemberJson(a_memberName, memberJson))
+		if constexpr (Is_reflective_v<Type> && Has_reflectName_v<Type>)
 		{
-			if constexpr (Is_reflective_v<Type> && Has_reflectName_v<Type>)
+			// is complex type
+			if (m_reflectiveClasses)
 			{
-				if (m_reflectiveClasses)
+				if (const auto iter = m_reflectiveClasses->find(Type::reflectName());
+					iter != m_reflectiveClasses->cend())
 				{
-					if (const auto iter = m_reflectiveClasses->find(Type::reflectName());
-						iter != m_reflectiveClasses->cend())
-					{
-						iter->second->m_TempJsonContent = &memberJson;
-						Type::init_reflect(a_value);
-						iter->second->m_TempJsonContent = nullptr;
-						return true;
-					}
+					setTempTreeNode(iter->second, a_memberName);
+					Type::init_reflect(a_value);
+					RHIReflectData::releaseTempTreeNode(iter->second);
+					return true;
 				}
 			}
-			else
+		}
+		else
+		{
+			// is simple type
+			std::string strValue;
+			if (RHIReflectData::memberValueInternal(a_memberName, strValue))
 			{
-				return RHIReflectData::basic_memberValue(memberJson, a_value);
+				from_string(a_value, strValue);
+				return true;
 			}
 		}
 		return false;
 	}
-
 
 };
 #pragma warning(pop)

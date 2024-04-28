@@ -146,11 +146,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="framework.h" />
+    <ClInclude Include="From_string.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="IRHICapabilitiesDisplayer.h" />
     <ClInclude Include="RHIFrameBuffer.h" />
     <ClInclude Include="RHIManager.h" />
     <ClInclude Include="RHIReflectData.h" />
+    <ClInclude Include="RHIReflectData_intern.h" />
     <ClInclude Include="RHIReflectiveClassSet.h" />
     <ClInclude Include="RHIType_traits.h" />
     <ClInclude Include="RHI_globals.h" />

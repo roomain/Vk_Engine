@@ -6,6 +6,8 @@
 ************************************************/
 #include "VkException.h"
 
-#define VK_CHECK(CALLING_FUN) \
-if(VkResult result = CALLING_FUN; result != VK_SUCCESS) \
-	throw VkException(result, std::source_location::current());
+#define VK_CHECK(result) \
+if(result != VK_SUCCESS) \
+{\
+	throw VkException(result, std::source_location::current());\
+}

@@ -8,9 +8,11 @@
 #include <exception>
 #include <string>
 #include "vulkan/vulkan_core.h"
+#include "vk_engine_globals.h"
+
 
 /*@brief Provides exception for vulkan*/
-class VkException : public std::exception
+class ENGINE_EXPORT VkException : public std::exception
 {
 private:
 	std::source_location m_srcLoc;

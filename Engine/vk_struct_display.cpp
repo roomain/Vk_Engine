@@ -42,9 +42,9 @@ void display(IRHICapabilitiesDisplayer& a_displayer, const VkRect2D& a_prop)
 
 void display(IRHICapabilitiesDisplayer& a_displayer, const VkFormatProperties& a_prop)
 {
-	a_displayer.setCapability("linear Tiling Features", Flag<VkFormatFeatureFlagBits>::to_string(a_prop.linearTilingFeatures));
-	a_displayer.setCapability("optimal Tiling Features", Flag<VkFormatFeatureFlagBits>::to_string(a_prop.optimalTilingFeatures));
-	a_displayer.setCapability("buffer Features", Flag<VkFormatFeatureFlagBits>::to_string(a_prop.bufferFeatures));
+	a_displayer.setCapability("linear Tiling Features", FlagOutput<VkFormatFeatureFlagBits>::to_string(a_prop.linearTilingFeatures));
+	a_displayer.setCapability("optimal Tiling Features", FlagOutput<VkFormatFeatureFlagBits>::to_string(a_prop.optimalTilingFeatures));
+	a_displayer.setCapability("buffer Features", FlagOutput<VkFormatFeatureFlagBits>::to_string(a_prop.bufferFeatures));
 }
 
 void display(IRHICapabilitiesDisplayer& a_displayer, const VkImageFormatProperties& a_prop)
@@ -54,19 +54,19 @@ void display(IRHICapabilitiesDisplayer& a_displayer, const VkImageFormatProperti
 	a_displayer.popCategory();
 	a_displayer.setCapability("max Mip Levels", a_prop.maxMipLevels);
 	a_displayer.setCapability("max Array Layers", a_prop.maxArrayLayers);
-	a_displayer.setCapability("sample Counts", Flag<VkSampleCountFlagBits>::to_string(a_prop.sampleCounts));
+	a_displayer.setCapability("sample Counts", FlagOutput<VkSampleCountFlagBits>::to_string(a_prop.sampleCounts));
 	a_displayer.setCapability("max Resource Size", a_prop.maxResourceSize);
 }
 
 void display(IRHICapabilitiesDisplayer& a_displayer, const VkMemoryHeap& a_prop)
 {
 	a_displayer.setCapability("size", a_prop.size);
-	a_displayer.setCapability("flags", Flag<VkMemoryHeapFlagBits>::to_string(a_prop.flags));
+	a_displayer.setCapability("flags", FlagOutput<VkMemoryHeapFlagBits>::to_string(a_prop.flags));
 }
 
 void display(IRHICapabilitiesDisplayer& a_displayer, const VkMemoryType& a_prop)
 {
-	a_displayer.setCapability("property Flags", Flag<VkMemoryPropertyFlagBits>::to_string(a_prop.propertyFlags));
+	a_displayer.setCapability("property Flags", FlagOutput<VkMemoryPropertyFlagBits>::to_string(a_prop.propertyFlags));
 	a_displayer.setCapability("heap Index", a_prop.heapIndex);
 }
 
@@ -227,16 +227,16 @@ void display(IRHICapabilitiesDisplayer& a_displayer, const VkPhysicalDeviceLimit
 	a_displayer.setCapability("max Framebuffer Width", a_prop.maxFramebufferWidth);
 	a_displayer.setCapability("max Framebuffer Height", a_prop.maxFramebufferHeight);
 	a_displayer.setCapability("max Framebuffer Layers", a_prop.maxFramebufferLayers);
-	a_displayer.setCapability("framebuffer Color Sample Counts", Flag<VkSampleCountFlagBits>::to_string(a_prop.framebufferColorSampleCounts));
-	a_displayer.setCapability("framebuffer Depth Sample Counts", Flag<VkSampleCountFlagBits>::to_string(a_prop.framebufferDepthSampleCounts));
-	a_displayer.setCapability("framebuffer Stencil Sample Counts", Flag<VkSampleCountFlagBits>::to_string(a_prop.framebufferStencilSampleCounts));
-	a_displayer.setCapability("framebuffer No Attachments Sample Counts", Flag<VkSampleCountFlagBits>::to_string(a_prop.framebufferNoAttachmentsSampleCounts));
+	a_displayer.setCapability("framebuffer Color Sample Counts", FlagOutput<VkSampleCountFlagBits>::to_string(a_prop.framebufferColorSampleCounts));
+	a_displayer.setCapability("framebuffer Depth Sample Counts", FlagOutput<VkSampleCountFlagBits>::to_string(a_prop.framebufferDepthSampleCounts));
+	a_displayer.setCapability("framebuffer Stencil Sample Counts", FlagOutput<VkSampleCountFlagBits>::to_string(a_prop.framebufferStencilSampleCounts));
+	a_displayer.setCapability("framebuffer No Attachments Sample Counts", FlagOutput<VkSampleCountFlagBits>::to_string(a_prop.framebufferNoAttachmentsSampleCounts));
 	a_displayer.setCapability("max Color Attachments", a_prop.maxColorAttachments);
-	a_displayer.setCapability("sampled Image Color Sample Counts", Flag<VkSampleCountFlagBits>::to_string(a_prop.sampledImageColorSampleCounts));
-	a_displayer.setCapability("sampled Image Integer Sample Counts", Flag<VkSampleCountFlagBits>::to_string(a_prop.sampledImageIntegerSampleCounts));
-	a_displayer.setCapability("sampled Image Depth Sample Counts", Flag<VkSampleCountFlagBits>::to_string(a_prop.sampledImageDepthSampleCounts));
-	a_displayer.setCapability("sampled Image Stencil Sample Counts", Flag<VkSampleCountFlagBits>::to_string(a_prop.sampledImageStencilSampleCounts));
-	a_displayer.setCapability("storage Image Sample Counts", Flag<VkSampleCountFlagBits>::to_string(a_prop.storageImageSampleCounts));
+	a_displayer.setCapability("sampled Image Color Sample Counts", FlagOutput<VkSampleCountFlagBits>::to_string(a_prop.sampledImageColorSampleCounts));
+	a_displayer.setCapability("sampled Image Integer Sample Counts", FlagOutput<VkSampleCountFlagBits>::to_string(a_prop.sampledImageIntegerSampleCounts));
+	a_displayer.setCapability("sampled Image Depth Sample Counts", FlagOutput<VkSampleCountFlagBits>::to_string(a_prop.sampledImageDepthSampleCounts));
+	a_displayer.setCapability("sampled Image Stencil Sample Counts", FlagOutput<VkSampleCountFlagBits>::to_string(a_prop.sampledImageStencilSampleCounts));
+	a_displayer.setCapability("storage Image Sample Counts", FlagOutput<VkSampleCountFlagBits>::to_string(a_prop.storageImageSampleCounts));
 	a_displayer.setCapability("max Sample Mask Words", a_prop.maxSampleMaskWords);
 	a_displayer.setCapability("timestamp Compute And Graphics", a_prop.timestampComputeAndGraphics);
 	a_displayer.setCapability("timestamp Period", a_prop.timestampPeriod);
@@ -319,7 +319,7 @@ void display(IRHICapabilitiesDisplayer& a_displayer, const VkPhysicalDevicePrope
 
 void display(IRHICapabilitiesDisplayer& a_displayer, const VkQueueFamilyProperties& a_prop)
 {
-	a_displayer.setCapability("queue Flags", Flag<VkQueueFlagBits>::to_string(a_prop.queueFlags));
+	a_displayer.setCapability("queue Flags", FlagOutput<VkQueueFlagBits>::to_string(a_prop.queueFlags));
 	a_displayer.setCapability("queue Count", a_prop.queueCount);
 	a_displayer.setCapability("timestamp Valid Bits", a_prop.timestampValidBits);
 	a_displayer.pushCategory("min Image Transfer Granularity");
@@ -366,12 +366,12 @@ void display(IRHICapabilitiesDisplayer& a_displayer, const VkSparseMemoryBind& a
 	a_displayer.setCapability("size", a_prop.size);
 	a_displayer.setCapability("memory", a_prop.memory);
 	a_displayer.setCapability("memory Offset", a_prop.memoryOffset);
-	a_displayer.setCapability("flags", Flag<VkSparseMemoryBindFlagBits>::to_string(a_prop.flags));
+	a_displayer.setCapability("flags", FlagOutput<VkSparseMemoryBindFlagBits>::to_string(a_prop.flags));
 }
 
 void display(IRHICapabilitiesDisplayer& a_displayer, const VkImageSubresource& a_prop)
 {
-	a_displayer.setCapability("aspect Mask", Flag<VkImageAspectFlagBits>::to_string(a_prop.aspectMask));
+	a_displayer.setCapability("aspect Mask", FlagOutput<VkImageAspectFlagBits>::to_string(a_prop.aspectMask));
 	a_displayer.setCapability("mip Level", a_prop.mipLevel);
 	a_displayer.setCapability("array Layer", a_prop.arrayLayer);
 }
@@ -389,16 +389,16 @@ void display(IRHICapabilitiesDisplayer& a_displayer, const VkSparseImageMemoryBi
 	a_displayer.popCategory();
 	a_displayer.setCapability("memory", a_prop.memory);
 	a_displayer.setCapability("memory Offset", a_prop.memoryOffset);
-	a_displayer.setCapability("flags", Flag<VkSparseMemoryBindFlagBits>::to_string(a_prop.flags));
+	a_displayer.setCapability("flags", FlagOutput<VkSparseMemoryBindFlagBits>::to_string(a_prop.flags));
 }
 
 void display(IRHICapabilitiesDisplayer& a_displayer, const VkSparseImageFormatProperties& a_prop)
 {
-	a_displayer.setCapability("aspect Mask", Flag<VkImageAspectFlagBits>::to_string(a_prop.aspectMask));
+	a_displayer.setCapability("aspect Mask", FlagOutput<VkImageAspectFlagBits>::to_string(a_prop.aspectMask));
 	a_displayer.pushCategory("image Granularity");
 	display(a_displayer, a_prop.imageGranularity);
 	a_displayer.popCategory();
-	a_displayer.setCapability("flags", Flag<VkSparseImageFormatFlagBits>::to_string(a_prop.flags));
+	a_displayer.setCapability("flags", FlagOutput<VkSparseImageFormatFlagBits>::to_string(a_prop.flags));
 }
 
 void display(IRHICapabilitiesDisplayer& a_displayer, const VkSparseImageMemoryRequirements& a_prop)

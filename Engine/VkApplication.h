@@ -9,11 +9,12 @@
 #include <vector>
 #include <vulkan/vulkan.hpp>
 #include "VkEngineDevice.h"
+#include "vk_engine_globals.h"
 
 class IRHICapabilitiesDisplayer;
 struct VKInstanceSettings;
 
-class VkApplication
+class ENGINE_EXPORT VkApplication
 {
 private:
 	VkInstance m_vulkanInstance = VK_NULL_HANDLE;	/*!< vulkan instance*/
@@ -21,6 +22,7 @@ private:
 	static void createVulkanInstance(VkApplication* const a_this, const VKInstanceSettings& a_setting);
 
 public:
+	VkApplication(const VKInstanceSettings& a_settings);
 	VkApplication();
 	~VkApplication();
 	void release();

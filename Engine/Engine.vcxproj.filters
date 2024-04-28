@@ -54,6 +54,15 @@
     <ClInclude Include="vk_parameters.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="vk_stringToEnum.h">
+      <Filter>Fichiers d%27en-tête\macros</Filter>
+    </ClInclude>
+    <ClInclude Include="vk_From_string.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="vk_engine_globals.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">

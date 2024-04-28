@@ -25,12 +25,13 @@ private:
 	RHIReflectDataSet m_classesDataset;	/*!< values of each class*/
 
 	static void loadConfiguration(const std::string& a_directory, RHIReflectDataSet& a_dataset);
+	static void loadConfigurationFile(const std::string& a_file, RHIReflectDataSet& a_dataset);
 
 public:
 	NOT_COPIABLE(RHIReflectiveClassSet);
 	// read all json in directory recursively
 	explicit RHIReflectiveClassSet(const std::string& a_directory);
-
+	void loadConfigurationFile(const std::string& a_file);
 	using const_ReflectDataSetIterator = RHIReflectDataSet::const_iterator;
 	const_ReflectDataSetIterator cbegin()const { return m_classesDataset.cbegin(); }
 	const_ReflectDataSetIterator cend()const { return m_classesDataset.cend(); }

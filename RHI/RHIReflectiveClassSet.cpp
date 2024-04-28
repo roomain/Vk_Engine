@@ -5,8 +5,19 @@
 #include <ranges>
 #include "boost/property_tree/ptree.hpp"
 #include "boost/property_tree/json_parser.hpp"
+#include "RHIReflectData_intern.h"
 
 namespace fs = std::filesystem;
+
+void RHIReflectiveClassSet::loadConfigurationFile(const std::string& a_file, RHIReflectDataSet& a_dataset)
+{
+	boost::property_tree::ptree propTree;
+	boost::property_tree::read_json(a_file, propTree);
+	for (const auto& [name, prop] : propTree)
+		a_dataset.try_emplace(name, std::make_unique<RHIReflectData>(
+			std::make_shared<RHIReflectData_intern>(prop, nullptr)
+		));
+}
 
 void RHIReflectiveClassSet::loadConfiguration(const std::string& a_directory, RHIReflectDataSet& a_dataset)
 {
@@ -19,18 +30,18 @@ void RHIReflectiveClassSet::loadConfiguration(const std::string& a_directory, RH
 	if (fs::exists(jsonDir) && fs::is_directory(jsonDir))
 	{
 		for (const auto& entry : fs::recursive_directory_iterator(jsonDir) | std::views::filter(isJsonFile))
-		{
-			boost::property_tree::ptree propTree;
-			boost::property_tree::read_json(entry.path().string(), propTree);
-			for (const auto& [name, prop] : propTree)
-				a_dataset.try_emplace(name, std::make_unique<RHIReflectData>(prop));
-		}
+			RHIReflectiveClassSet::loadConfigurationFile(entry.path().string(), a_dataset);
 	}
 }
 
 RHIReflectiveClassSet::RHIReflectiveClassSet(const std::string& a_directory)
 {
 	RHIReflectiveClassSet::loadConfiguration(a_directory, m_classesDataset);
+}
+
+void RHIReflectiveClassSet::loadConfigurationFile(const std::string& a_file)
+{
+	RHIReflectiveClassSet::loadConfigurationFile(a_file, m_classesDataset);
 }
 
 RHIReflectiveClassSet::const_ReflectDataSetIterator RHIReflectiveClassSet::find(const std::string& a_classname)const

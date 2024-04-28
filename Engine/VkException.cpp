@@ -5,9 +5,7 @@
 
 std::string VkException::errorDescription(const VkResult& a_error)
 {
-	std::string message{ "Unknown" };
-	// todo
-	return message;
+	return to_string(a_error);
 }
 
 VkException::VkException(const VkResult& a_error, const std::source_location& a_loc) : 
