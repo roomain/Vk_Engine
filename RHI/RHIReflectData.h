@@ -40,6 +40,7 @@ private:
 	bool memberValuesInternal(const std::string& a_memberName, const GetValueFromString& a_callback)const;
 	bool memberValueInternal(const std::string& a_memberName, std::string& a_value)const;
 	bool setTempTreeNode(const RHIReflectDataPtr& a_reflecData, const std::string& a_memberName)const;
+	bool flagValueInternal(const std::string& a_memberName, std::vector<std::string>& a_value)const;
 	static void releaseTempTreeNode(const RHIReflectDataPtr& a_reflecData);
 
 public:
@@ -178,6 +179,17 @@ public:
 				from_string(a_value, strValue);
 				return true;
 			}
+		}
+		return false;
+	}
+
+	template<typename FlagType, typename BaseType>
+	bool flagValue(const std::string& a_memberName, FlagType& a_value)const
+	{
+		std::vector<std::string> values;
+		if (flagValueInternal(a_memberName, a_value))
+		{
+			// todo
 		}
 		return false;
 	}

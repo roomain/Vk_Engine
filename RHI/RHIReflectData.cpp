@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "RHIReflectData.h"
 #include "RHIReflectData_intern.h"
+#include "stringUtils.h"
 
 
 //----------------------------------------------------------
@@ -49,6 +50,16 @@ bool RHIReflectData::memberValuesInternal(const RHIReflectDataPtr& a_reflecData,
 			}
 			return true;
 		}
+	}
+	return false;
+}
+
+bool RHIReflectData::flagValueInternal(const std::string& a_memberName, std::vector<std::string>& a_value)const
+{
+	if (auto iterValue = m_internData->m_localJsonContent.find(a_memberName); iterValue != m_internData->m_localJsonContent.not_found())
+	{
+		split(iterValue->second.data(), '|', a_value);
+		return true;
 	}
 	return false;
 }
