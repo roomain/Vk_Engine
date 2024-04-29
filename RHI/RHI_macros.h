@@ -62,3 +62,4 @@ IMPLEMENT_REFLECT_CTOR(classname)
 /*@brief reflects macro used for code generation*/
 #define REFLECT_CLASS(classname)
 #define REFLECT_MEMBER
+#define REFLECT_FLAG(flagbit)

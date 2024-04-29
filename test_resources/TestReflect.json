@@ -14,6 +14,7 @@
   },
   "SubTestReflect": {
     "m_memberI": 0,
-    "m_memberF": 1.0
+    "m_memberF": 1.0,
+    "m_flag" : "First_bit | Third_bit"
   }
 }

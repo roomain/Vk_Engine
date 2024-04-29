@@ -1,5 +1,7 @@
 #pragma once
 #include "RHI_macros.h"
+#include "TestReflectFlag.h"
+#include "Test_From_string.h"
 #include <vector>
 
 REFLECT_CLASS(ReflectiveStruct)
@@ -22,6 +24,8 @@ private:
 	REFLECT_MEMBER
 	int m_memberI; // member int
 
+	REFLECT_FLAG(FlagTestBit)
+	FlagTest m_flag = 0;
 
 	REFLECT_MEMBER
 	/*
@@ -34,6 +38,7 @@ private:
 public:
 	int getMemberI()const;
 	float getMemberF()const;
+	FlagTest getFlag()const;
 };
 
 REFLECT_CLASS(TestReflect)

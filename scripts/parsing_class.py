@@ -6,12 +6,16 @@ import datetime
 class HeaderParser:
     MACRO_REFLECT_CLASS = "REFLECT_CLASS"
     MACRO_REFLECT_MEMBER = "REFLECT_MEMBER"
+    MACRO_REFECT_FLAG = "REFLECT_FLAG"
 
     def isReflectClass(self, line):
         return line.startswith(self.MACRO_REFLECT_CLASS)
 
     def isReflectMember(self, line):
         return line.startswith(self.MACRO_REFLECT_MEMBER)
+    
+    def isReflectFlag(self, line):
+        return line.startswith(self.MACRO_REFECT_FLAG)
 
     def extractArg(self, line):
         return re.search(".*\((.*)\).*", line).group(1)
@@ -51,7 +55,18 @@ class HeaderParser:
             if "=" in line : 
                 member = re.search("(.*)\s(.+)=(.*);.*", line)
             if member is not None:
-                self.classList[self.classIndex].members.append(PO.ClassMember(member.group(1), member.group(2)))
+                self.classList[self.classIndex].members.append(PO.ClassMember(member.group(1), member.group(2).strip()))
+                found = True
+    
+    def getFlag(self, file, baseType):
+        found = False
+        while not file.atEnd() and not found:
+            line = self.removeComment(file, file.nextTrimmedLine())            
+            member = re.search("(.*) (.*);.*", line)
+            if "=" in line : 
+                member = re.search("(.*)\s(.+)=(.*);.*", line)
+            if member is not None:
+                self.classList[self.classIndex].members.append(PO.FlagMember(member.group(1), member.group(2).strip(), baseType))
                 found = True
 
 
@@ -64,11 +79,16 @@ class HeaderParser:
             classBracket.count(line)
             if line.startswith(self.MACRO_REFLECT_MEMBER):
                 self.getMember(file)
+            elif self.isReflectFlag(line):
+                flagBaseType = self.extractArg(line)
+                self.getFlag(file, flagBaseType)
+
 
     def processLine(self, file, curLine):
         if self.isReflectClass(curLine):
             classname = self.extractArg(curLine)
             self.parseClass(file, classname)
+
 
     def __init__(self, filePath):
         print("Parse file: {}".format(filePath))

@@ -9,6 +9,28 @@
 #include <ranges>
 #include <vector>
 
+inline void trimLeft(std::string& a_toTrim)
+{
+    a_toTrim.erase(a_toTrim.begin(), std::find_if(a_toTrim.begin(), a_toTrim.end(), [](unsigned char ch) {
+        return !std::isspace(ch);
+        }));
+}
+
+inline void trimRight(std::string& a_toTrim)
+{
+    a_toTrim.erase(std::find_if(a_toTrim.rbegin(), a_toTrim.rend(), [](unsigned char ch) {
+        return !std::isspace(ch);
+        }).base(), a_toTrim.end());
+}
+
+inline std::string trim(const std::string& a_toTrim)
+{
+    std::string temp = a_toTrim;
+    trimLeft(temp);
+    trimRight(temp);
+    return temp;
+}
+
 [[nodiscard]] inline  bool char_equals(const char a_first, const char a_second)
 {
     return std::tolower(a_first) == std::tolower(a_second);

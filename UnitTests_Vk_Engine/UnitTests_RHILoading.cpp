@@ -40,6 +40,8 @@ namespace UnitTestsVkEngine
 			SubTestReflect testReflect;
 			Assert::AreEqual(0, testReflect.getMemberI(), L"Wrong int value");
 			Assert::AreEqual(1.0f, testReflect.getMemberF(), L"Wrong float value");
+
+			Assert::AreEqual(static_cast<FlagTest>(First_bit | Third_bit), testReflect.getFlag(), L"Wrong float value");
 		}
 
 		TEST_METHOD(Test_loadStruct)

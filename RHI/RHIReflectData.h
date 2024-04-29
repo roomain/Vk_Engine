@@ -14,6 +14,7 @@
 #include "RHIReflectiveClassSet.h"
 #include "RHI_globals.h"
 #include "From_string.h"
+#include "stringUtils.h"
 
 #pragma warning(push)
 #pragma warning(disable : 4275)
@@ -187,9 +188,19 @@ public:
 	bool flagValue(const std::string& a_memberName, FlagType& a_value)const
 	{
 		std::vector<std::string> values;
-		if (flagValueInternal(a_memberName, a_value))
+		if (flagValueInternal(a_memberName, values))
 		{
-			// todo
+			for (const auto& str : values)
+			{
+				if (BaseType temp; from_string<BaseType>(temp, trim(str)))
+				{
+					a_value |= temp;
+				}
+				else
+				{
+					return false;
+				}
+			}
 		}
 		return false;
 	}

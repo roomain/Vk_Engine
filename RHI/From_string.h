@@ -6,8 +6,10 @@
 ************************************************/
 #include <string>
 
+#pragma message(__FILE__ "Include extended from_string before include generated header")
+
 template<typename Type>
-bool from_string(Type& a_data, const std::string& a_value) { return false; }
+bool from_string([[maybe_unused]] Type& a_data, [[maybe_unused]] const std::string& a_value) { return false; }
 
 
 template<>

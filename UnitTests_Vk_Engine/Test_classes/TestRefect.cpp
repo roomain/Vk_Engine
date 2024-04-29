@@ -16,6 +16,11 @@ float SubTestReflect::getMemberF()const
 	return m_memberF;
 }
 
+FlagTest SubTestReflect::getFlag()const
+{
+	return m_flag;
+}
+
 IMPLEMENT_REFLECT_CLASS(TestReflect)
 
 int TestReflect::getMemberI()const

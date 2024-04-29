@@ -9,11 +9,33 @@ class ClassMember:
 
     def print(self):
         print("{} {}".format(self.type, self.name))
+    
     def __init__(self, type, name):
         self.name = name
         self.type = type
+    
     def isValid(self):
         return len(self.name) > 0 and len(self.type) > 0
+    
+    def generateLoad(self, file):
+        file.write("iterClass->second->memberValue(\"{}\", a_this.{});\\\n".format(self.name, self.name))
+
+
+class FlagMember(ClassMember):
+    
+    def print(self):
+        print("{} {} {}".format(self.type, self.name, self.baseType))
+
+    def __init__(self, type, name, baseType):
+        ClassMember.__init__(self, type, name)
+        self.baseType = baseType
+
+    def isValid(self):
+        return ClassMember.isValid() and len(self.baseType) > 0
+    
+    def generateLoad(self, file):
+        file.write("iterClass->second->flagValue<{},{}>(\"{}\", a_this.{});\\\n".format(self.type, self.baseType,self.name, self.name))
+    
 
 
 class Class:
@@ -25,12 +47,13 @@ class Class:
         print(self.classname)
         for member in self.members:
             member.print()
+            
     def implement(self, file):
         # implements loader
         file.write("/* load macro of reflective class {}*/ \n".format(self.classname))
         file.write("#define _INIT_{} \\\n".format(self.classname))
         for member in self.members:
-            file.write("iterClass->second->memberValue(\"{}\", a_this.{});\\\n".format(member.name, member.name))
+            member.generateLoad(file)
         file.write("\n\n")
         # implements writer
         #file.write("#define _SAVE_{} \\\n".format(self.classname))
