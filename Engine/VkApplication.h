@@ -44,10 +44,13 @@ public:
 	[[nodiscard]] VkEngineDevicePtr operator[](const size_t& a_index)const { return m_devices[a_index]; }
 	VkEngineDevicePtr createDevice(const int a_devIndex);
 
+	/*@brief display instance capabilities*/
 	static void displayInstanceCapabilities(IRHICapabilitiesDisplayer& a_displayer);
+	/*@brief display capabilities of all devices (Vulkan instance must be instanciated)*/
 	void displayDevicesCapabilities(IRHICapabilitiesDisplayer& a_displayer)const;
 	// todo
 
+	/*@brief find compatible devices with desired settings*/
 	bool findCompatibleDevices(const VKDeviceSettings& a_settings, std::vector<VKDeviceInfo>& a_vCompatibeDevices)const;
 };
 
