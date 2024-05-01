@@ -31,9 +31,24 @@ void VkApplication::createVulkanInstance(VkApplication* const a_this, const VKIn
 		//vExtension.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 		instanceInfo.ppEnabledExtensionNames = vExtension.data();
 		instanceInfo.enabledExtensionCount = static_cast<uint32_t>(vExtension.size());
-		// todo
+		
 		VK_CHECK(vkCreateInstance(&instanceInfo, nullptr, &(a_this->m_vulkanInstance)))
 	}
+}
+
+bool VkApplication::findQueue(const std::vector<VkQueueFamilyProperties>& a_queueFamilies, const VkQueueFlags a_queueFlag, VKDeviceInfo& a_devInfo)
+{
+	uint32_t queueIndex = 0;
+	for (const auto& properties : a_queueFamilies)
+	{
+		if ((properties.queueFlags & a_queueFlag) == a_queueFlag)
+		{
+			a_devInfo.Queues[a_queueFlag] = queueIndex;
+			return true;
+		}
+		++queueIndex;
+	}
+	return false;
 }
 
 VkApplication::VkApplication(const VKInstanceSettings& a_settings)
@@ -139,6 +154,44 @@ void VkApplication::displayDevicesCapabilities(IRHICapabilitiesDisplayer& a_disp
 			a_displayer.pushCategory("features");
 			display(a_displayer, feature);
 			a_displayer.popCategory();
+
+			uint32_t queueFamilyCount;
+			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+			std::vector<VkQueueFamilyProperties> queueFamilyProperties(queueFamilyCount);
+			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilyProperties.data());
+			a_displayer.pushCategory("Queues");
+			for (const auto& queueFamily : queueFamilyProperties)
+				display(a_displayer, queueFamily);			
+			a_displayer.popCategory();
 		}
 	}	
+}
+
+bool VkApplication::findCompatibleDevices(const VKDeviceSettings& a_settings, std::vector<VKDeviceInfo>& a_vCompatibeDevices)const
+{
+	if (m_vulkanInstance != VK_NULL_HANDLE)
+	{
+		uint32_t numDevices;
+		vkEnumeratePhysicalDevices(m_vulkanInstance, &numDevices, nullptr);
+		std::vector<VkPhysicalDevice> vDevices{ numDevices };
+		vkEnumeratePhysicalDevices(m_vulkanInstance, &numDevices, vDevices.data());
+		int deviceIndex = 0;
+		for (const auto& device : vDevices)
+		{			
+			VKDeviceInfo devInfo{ .DeviceId = deviceIndex };
+			VkPhysicalDeviceProperties prop;
+			uint32_t queueFamilyCount;
+			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+			std::vector<VkQueueFamilyProperties> queueFamilyProperties(queueFamilyCount);
+			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilyProperties.data());
+
+			if (VkApplication::findQueue(queueFamilyProperties, a_settings.QueueFlag, devInfo))
+			{
+				// todo
+			}
+			deviceIndex++;
+		}
+		return true;
+	}
+	return false;
 }

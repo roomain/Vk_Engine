@@ -8,6 +8,7 @@
 #include <string>
 #include <ranges>
 #include <vector>
+#include <algorithm>
 
 inline void trimLeft(std::string& a_toTrim)
 {
@@ -31,11 +32,12 @@ inline void trimRight(std::string& a_toTrim)
     return temp;
 }
 
-[[nodiscard]] std::vector<const char*> vStringToChar(const std::vector<std::string>& a_vString)
+[[nodiscard]] inline std::vector<const char*> vStringToChar(const std::vector<std::string>& a_vString)
 {
     std::vector<const char*> vChar;
-	std::ranges::transform(a_vString.cbegin(), a_vString.cend(), std::back_inserter(vChar),
+	std::transform(a_vString.cbegin(), a_vString.cend(), std::back_inserter(vChar),
 			[](const auto& a_text) {return a_text.c_str(); });
+    return vChar;
 }
 
 

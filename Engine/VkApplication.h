@@ -7,6 +7,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <unordered_map>
 #include <vulkan/vulkan.hpp>
 #include "VkEngineDevice.h"
 #include "vk_engine_globals.h"
@@ -14,13 +15,22 @@
 class IRHICapabilitiesDisplayer;
 struct VKInstanceSettings;
 
+struct VKDeviceInfo
+{
+	int DeviceId;										/*!< device identifier in vulkan instance*/
+	VkPhysicalDeviceType DeviceType;					/*!< device type*/
+	std::string DeviceName;								/*!< name of device*/
+	std::unordered_map<VkQueueFlags, uint32_t> Queues;	/*!< compatible queues by flag*/
+};
+
 class ENGINE_EXPORT VkApplication
 {
 private:
 	VkInstance m_vulkanInstance = VK_NULL_HANDLE;	/*!< vulkan instance*/
 	std::vector<VkEngineDevicePtr> m_devices;		/*!< engine device list*/
 	static void createVulkanInstance(VkApplication* const a_this, const VKInstanceSettings& a_setting);
-
+	static bool findQueue(const std::vector<VkQueueFamilyProperties>& a_queueFamilies, const VkQueueFlags a_queueFlag, VKDeviceInfo& a_devInfo);
+	
 public:
 	explicit VkApplication(const VKInstanceSettings& a_settings);
 	VkApplication();
@@ -37,5 +47,7 @@ public:
 	static void displayInstanceCapabilities(IRHICapabilitiesDisplayer& a_displayer);
 	void displayDevicesCapabilities(IRHICapabilitiesDisplayer& a_displayer)const;
 	// todo
+
+	bool findCompatibleDevices(const VKDeviceSettings& a_settings, std::vector<VKDeviceInfo>& a_vCompatibeDevices)const;
 };
 

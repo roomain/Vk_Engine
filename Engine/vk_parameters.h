@@ -7,16 +7,17 @@
 #include "RHI_macros.h"
 #include <vector>
 #include <string>
-#include "vk_parameters.generated.h"
+#include "vk_engine_globals.h"
 #include "vk_From_string.h"
+#include "vk_parameters.generated.h"
 
-struct VKSettings
+struct ENGINE_EXPORT VKSettings
 {
 	virtual bool isValid()const noexcept = 0;
 };
 
 REFLECT_CLASS(VKInstanceSettings)
-struct VKInstanceSettings : VKSettings
+struct ENGINE_EXPORT VKInstanceSettings : VKSettings
 {
 	REFLECT_MEMBER
 	std::string ApplicationName;
@@ -41,12 +42,10 @@ private:
 	DECLARE_REFLECT_CLASS(VKInstanceSettings)
 };
 
-IMPLEMENT_REFLECT_CLASS(VKInstanceSettings)
-
 
 
 REFLECT_CLASS(VKDeviceSettings)
-struct VKDeviceSettings : VKSettings
+struct ENGINE_EXPORT VKDeviceSettings : VKSettings
 {
 	REFLECT_MEMBER;
 	int DeviceIndex = -1;
@@ -57,6 +56,9 @@ struct VKDeviceSettings : VKSettings
 	REFLECT_MEMBER;
 	std::vector<std::string> Extensions;
 
+	REFLECT_FLAG(VkQueueFlagBits)
+	VkQueueFlags QueueFlag = 0;
+
 	bool isValid()const noexcept override
 	{
 		return DeviceIndex >= 0 /*todo*/;
@@ -64,5 +66,3 @@ struct VKDeviceSettings : VKSettings
 private:
 	DECLARE_REFLECT_CLASS(VKDeviceSettings)
 };
-
-IMPLEMENT_REFLECT_CLASS(VKDeviceSettings)

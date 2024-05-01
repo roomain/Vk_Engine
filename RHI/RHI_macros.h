@@ -6,7 +6,7 @@
 ************************************************/
 #include "RHIManager.h"
 #include "RHIType_traits.h"
-#pragma message(__FILE__ "Don't forget REFLECT macro and include generated header") \
+#pragma message("-> Don't forget REFLECT macro and include generated header") \
 /*@brief macro to initialize class from Json data*/
 
 /*@brief declares init static function of reflective class*/

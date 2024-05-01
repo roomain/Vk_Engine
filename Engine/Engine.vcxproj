@@ -180,6 +180,7 @@
     <ClCompile Include="VkApplication.cpp" />
     <ClCompile Include="VkEngineDevice.cpp" />
     <ClCompile Include="VkException.cpp" />
+    <ClCompile Include="vk_parameters.cpp" />
     <ClCompile Include="vk_struct_display.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

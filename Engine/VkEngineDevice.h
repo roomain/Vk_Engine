@@ -37,6 +37,7 @@ public:
 
 	// wait device idle
 	void waitForDeviceIdle();
+
 };
 
 using VkEngineDevicePtr = std::shared_ptr<VkEngineDevice>;
