@@ -48,6 +48,7 @@ IMPLEMENT_REFLECT_CLASS(VKInstanceSettings)
 REFLECT_CLASS(VKDeviceSettings)
 struct VKDeviceSettings : VKSettings
 {
+	REFLECT_MEMBER;
 	int DeviceIndex = -1;
 
 	REFLECT_MEMBER;

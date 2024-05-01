@@ -23,13 +23,21 @@ inline void trimRight(std::string& a_toTrim)
         }).base(), a_toTrim.end());
 }
 
-inline std::string trim(const std::string& a_toTrim)
+[[nodiscard]] inline std::string trim(const std::string& a_toTrim)
 {
     std::string temp = a_toTrim;
     trimLeft(temp);
     trimRight(temp);
     return temp;
 }
+
+[[nodiscard]] std::vector<const char*> vStringToChar(const std::vector<std::string>& a_vString)
+{
+    std::vector<const char*> vChar;
+	std::ranges::transform(a_vString.cbegin(), a_vString.cend(), std::back_inserter(vChar),
+			[](const auto& a_text) {return a_text.c_str(); });
+}
+
 
 [[nodiscard]] inline  bool char_equals(const char a_first, const char a_second)
 {

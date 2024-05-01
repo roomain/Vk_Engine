@@ -22,7 +22,7 @@ private:
 	static void createVulkanInstance(VkApplication* const a_this, const VKInstanceSettings& a_setting);
 
 public:
-	VkApplication(const VKInstanceSettings& a_settings);
+	explicit VkApplication(const VKInstanceSettings& a_settings);
 	VkApplication();
 	~VkApplication();
 	void release();

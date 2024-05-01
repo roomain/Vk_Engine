@@ -7,6 +7,7 @@
 #include "IRHICapabilitiesDisplayer.h"
 #include "vk_parameters.h"
 #include "vk_enumToString.h"
+#include "stringUtils.h"
 
 void VkApplication::createVulkanInstance(VkApplication* const a_this, const VKInstanceSettings& a_setting)
 {
@@ -20,16 +21,12 @@ void VkApplication::createVulkanInstance(VkApplication* const a_this, const VKIn
 		VkInstanceCreateInfo instanceInfo = gen_instanceCreateInfo();
 		instanceInfo.pApplicationInfo = &appInfo;
 
-		std::vector<const char*> vLayers;
-		std::ranges::transform(a_setting.Layers.cbegin(), a_setting.Layers.cend(), std::back_inserter(vLayers),
-			[](const auto& ext) {return ext.c_str(); });
+		std::vector<const char*> vLayers = vStringToChar(a_setting.Layers);		
 		//vLayers.emplace_back(VK_EXT_VALIDATION_FLAGS_EXTENSION_NAME);
 		instanceInfo.ppEnabledLayerNames = vLayers.data();
 		instanceInfo.enabledLayerCount = static_cast<uint32_t>(vLayers.size());
 
-		std::vector<const char*> vExtension;
-		std::ranges::transform(a_setting.Extensions.cbegin(), a_setting.Extensions.cend(), std::back_inserter(vExtension),
-			[](const auto& ext) {return ext.c_str(); });
+		std::vector<const char*> vExtension = vStringToChar(a_setting.Extensions);
 		//vExtension.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 		//vExtension.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 		instanceInfo.ppEnabledExtensionNames = vExtension.data();

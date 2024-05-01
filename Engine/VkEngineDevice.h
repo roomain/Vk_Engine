@@ -7,6 +7,8 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 
+struct VKDeviceSettings;
+
 /*@brief vulkan device*/
 class VkEngineDevice
 {
@@ -16,7 +18,8 @@ protected:
 	VkDevice m_device = VK_NULL_HANDLE;				/*!< vulkan logical device*/
 
 public:
-	VkEngineDevice(const VkInstance a_vkInstanceHandle);
+	VkEngineDevice() = delete;
+	explicit VkEngineDevice(const VkInstance a_vkInstanceHandle, const VKDeviceSettings& a_settings);
 	virtual ~VkEngineDevice();
 	[[nodiscard]] constexpr bool isValid()const { return m_device != VK_NULL_HANDLE; }
 
