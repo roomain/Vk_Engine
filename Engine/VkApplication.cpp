@@ -36,19 +36,28 @@ void VkApplication::createVulkanInstance(VkApplication* const a_this, const VKIn
 	}
 }
 
-bool VkApplication::findQueue(const std::vector<VkQueueFamilyProperties>& a_queueFamilies, const VkQueueFlags a_queueFlag, VKDeviceInfo& a_devInfo)
+bool VkApplication::findQueue(const std::vector<VkQueueFamilyProperties>& a_queueFamilies, const VKDeviceSettings& a_settings, VKDeviceInfo& a_devInfo)
 {
-	uint32_t queueIndex = 0;
-	for (const auto& properties : a_queueFamilies)
+	for (const auto& queueSettings : a_settings.QueuesSettings)
 	{
-		if ((properties.queueFlags & a_queueFlag) == a_queueFlag)
+		uint32_t iCounter = queueSettings.Count;
+		uint32_t queueIndex = 0;
+		for (const auto& properties : a_queueFamilies)
 		{
-			a_devInfo.Queues[a_queueFlag] = queueIndex;
-			return true;
+			if ((properties.queueFlags & queueSettings.QueueFlag) == queueSettings.QueueFlag)
+			{
+				a_devInfo.Queues[queueSettings.QueueFlag].emplace_back(queueIndex);
+				iCounter -= std::min(properties.queueCount, iCounter);
+				if (iCounter == 0)
+					break;
+			}
+			++queueIndex;
 		}
-		++queueIndex;
+
+		if (iCounter > 0)
+			return false;
 	}
-	return false;
+	return true;
 }
 
 VkApplication::VkApplication(const VKInstanceSettings& a_settings)
@@ -84,10 +93,31 @@ void VkApplication::release()
 	}
 }
 
-VkEngineDevicePtr VkApplication::createDevice(const int a_devIndex)
+VkEngineDevicePtr VkApplication::createDevice(const int a_devIndex, const VKDeviceInfo& a_devInfo)
 {
 	VkEngineDevicePtr device;
-	//todo
+	std::vector<VkDeviceQueueCreateInfo> vQueueInfo;
+	for (const auto& [flag, indexList] : a_devInfo.Queues)
+	{
+		for (const int index : indexList)
+		{
+			VkDeviceQueueCreateInfo queueCreateInfo = gen_queueCreateInfo();
+			queueCreateInfo.flags = flag;
+			queueCreateInfo.queueFamilyIndex = index;
+			queueCreateInfo.queueCount;
+		}
+		// todo
+	}
+
+	VkDeviceCreateInfo deviceCreateInfo = gen_deviceCreateInfo();
+	deviceCreateInfo.flags;
+	deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(vQueueInfo.size());
+	deviceCreateInfo.pQueueCreateInfos = vQueueInfo.data();;
+	deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(a_devInfo.vLayers.size());
+	deviceCreateInfo.ppEnabledLayerNames = a_devInfo.vLayers.data();
+	deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(a_devInfo.vExtension.size());
+	deviceCreateInfo.ppEnabledExtensionNames = a_devInfo.vExtension.data();
+	deviceCreateInfo.pEnabledFeatures;
 	return device;
 }
 
@@ -141,6 +171,24 @@ void VkApplication::displayDevicesCapabilities(IRHICapabilitiesDisplayer& a_disp
 			a_displayer.setCapability("api version", prop.apiVersion);
 			a_displayer.setCapability("driver version", prop.driverVersion);
 
+			uint32_t numExtension;
+			vkEnumerateDeviceExtensionProperties(device, nullptr, &numExtension, nullptr);
+			std::vector<VkExtensionProperties> vProperties(numExtension);
+			vkEnumerateDeviceExtensionProperties(device, nullptr, &numExtension, vProperties.data());
+			a_displayer.pushCategory("Extensions");
+			for (const auto& extProp : vProperties)
+				display(a_displayer, extProp);
+			a_displayer.popCategory();
+
+			uint32_t numLayers;
+			vkEnumerateDeviceLayerProperties(device, &numLayers, nullptr);
+			std::vector<VkLayerProperties> vLayers(numLayers);
+			vkEnumerateDeviceLayerProperties(device, &numLayers, vLayers.data());
+			a_displayer.pushCategory("Layers");
+			for (const auto& layersProp : vLayers)
+				display(a_displayer, layersProp);
+			a_displayer.popCategory();
+
 			a_displayer.pushCategory("Sparse properties");
             display(a_displayer, prop.sparseProperties);
 			a_displayer.popCategory();
@@ -176,18 +224,28 @@ bool VkApplication::findCompatibleDevices(const VKDeviceSettings& a_settings, st
 		std::vector<VkPhysicalDevice> vDevices{ numDevices };
 		vkEnumeratePhysicalDevices(m_vulkanInstance, &numDevices, vDevices.data());
 		int deviceIndex = 0;
-		for (const auto& device : vDevices)
-		{			
-			VKDeviceInfo devInfo{ .DeviceId = deviceIndex };
-			VkPhysicalDeviceProperties prop;
-			uint32_t queueFamilyCount;
-			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-			std::vector<VkQueueFamilyProperties> queueFamilyProperties(queueFamilyCount);
-			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilyProperties.data());
+		VKDeviceInfo devInfo;
+		devInfo.vExtension = vStringToChar(a_settings.Extensions);
+		devInfo.vLayers = vStringToChar(a_settings.Layers);
 
-			if (VkApplication::findQueue(queueFamilyProperties, a_settings.QueueFlag, devInfo))
+		for (const auto& device : vDevices)
+		{	
+			// init device info
+			devInfo.Queues.clear();			
+			devInfo.DeviceId = deviceIndex;
+			if (VkEngineDevice::checkDeviceLayers(device, a_settings.Layers) &&
+				VkEngineDevice::checkDeviceExtension(device, a_settings.Extensions))
 			{
-				// todo
+				VkPhysicalDeviceProperties prop;
+				vkGetPhysicalDeviceProperties(device, &prop);
+
+				uint32_t queueFamilyCount;
+				vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+				std::vector<VkQueueFamilyProperties> queueFamilyProperties(queueFamilyCount);
+				vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilyProperties.data());
+
+				if (VkApplication::findQueue(queueFamilyProperties, a_settings, devInfo))
+					a_vCompatibeDevices.emplace_back(std::move(devInfo));
 			}
 			deviceIndex++;
 		}

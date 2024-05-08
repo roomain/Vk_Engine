@@ -10,6 +10,9 @@
 #include "vulkan/vulkan_core.h"
 #include "vk_engine_globals.h"
 
+#pragma warning(push)
+#pragma warning(disable : 4251)
+#pragma warning(disable : 4275)
 
 /*@brief Provides exception for vulkan*/
 class ENGINE_EXPORT VkException : public std::exception
@@ -29,3 +32,5 @@ public:
 #define check_vulkan(a_fun)\
 if(VkResult result = a_fun; result != VK_SUCCESS) \
 	throw VkException(result, std::source_location::current());
+
+#pragma warning(pop)

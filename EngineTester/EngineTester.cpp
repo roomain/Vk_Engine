@@ -6,9 +6,33 @@
 #include "vk_parameters.h"
 #include "RHIManager.h"
 #include <iostream>
+#include "macros.h"
+
+
+#include <SDL3/SDL.h>
+#include <SDL3/SDL_vulkan.h>
+
+struct SDLApp
+{
+    const std::string appName = "EngineTester";
+    int windowWidth = 800;
+    int windowHeight = 600;
+    SDL_Window* window = nullptr;
+};
+
+void initializeSDL(SDLApp& application)
+{
+    SDL_Init(SDL_INIT_EVERYTHING);
+    SDL_CHECK(SDL_Vulkan_LoadLibrary(nullptr))
+    application.window = SDL_CreateWindow(application.appName.c_str(),
+        application.windowWidth, application.windowHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN);
+
+}
 
 int main()
 {
+    SDLApp sdlApp;
+
     VulkanCapabilitiesDisplayer displayer;
     VkApplication::displayInstanceCapabilities(displayer);
 
@@ -23,10 +47,36 @@ int main()
     {
         VkApplication app(settings);
         app.displayDevicesCapabilities(displayer);
+        initializeSDL(sdlApp);
+
+        // todo
+
+        // create surface
+        VkSurfaceKHR surface;
+        SDL_Vulkan_CreateSurface(sdlApp.window, app.vulkanInstance(), &surface);
+
+        bool running = true;
+        while (running)
+        {
+            SDL_Event windowEvent;
+            while (SDL_PollEvent(&windowEvent))
+            {
+                if (windowEvent.type == SDL_EVENT_QUIT)
+                {
+                    running = false;
+                    break;
+                }
+            }
+        }
+
     }
     catch (VkException& except)
     {
         std::cerr << except.message();
+    }
+    catch (std::runtime_error& except)
+    {
+        std::cerr << except.what();
     }
     return 0;
 }

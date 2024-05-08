@@ -9,9 +9,16 @@
 
 struct VKDeviceSettings;
 
+class VkApplication;
+
 /*@brief vulkan device*/
 class VkEngineDevice
 {
+	friend VkApplication;
+
+private:
+	explicit VkEngineDevice(const VkInstance a_vkInstanceHandle, const VkPhysicalDevice a_physical, const VkDevice a_logical);
+
 protected:
 	VkInstance m_vulkanInstance = VK_NULL_HANDLE;	/*!< vulkan instance*/
 	VkPhysicalDevice m_physical = VK_NULL_HANDLE;	/*!< physical device that vulkan will use*/
@@ -19,9 +26,12 @@ protected:
 
 public:
 	VkEngineDevice() = delete;
-	explicit VkEngineDevice(const VkInstance a_vkInstanceHandle, const VKDeviceSettings& a_settings);
 	virtual ~VkEngineDevice();
 	[[nodiscard]] constexpr bool isValid()const { return m_device != VK_NULL_HANDLE; }
+
+	// check device compatibility
+	static bool checkDeviceLayers(VkPhysicalDevice a_device, const std::vector<std::string>& a_desiredLayers);
+	static bool checkDeviceExtension(VkPhysicalDevice a_device, const std::vector<std::string>& a_desiredExts);
 
 	// create command pool
 

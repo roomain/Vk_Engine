@@ -35,3 +35,9 @@
 {
 	return VkDeviceCreateInfo{ .sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO, .pNext = nullptr };
 }
+
+/*@brief initialize create device*/
+[[nodiscard]] constexpr VkDeviceQueueCreateInfo gen_queueCreateInfo()
+{
+	return VkDeviceQueueCreateInfo{ .sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO, .pNext = nullptr };
+}

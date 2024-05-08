@@ -59,11 +59,15 @@ public:
 			// is complex type
 			if (m_reflectiveClasses)
 			{
-				
-				return memberValuesInternal(m_reflectiveClasses, a_memberName, [&a_value]()
-					{
-						a_value.emplace_back<Type>();
-					});
+				if (const auto iter = m_reflectiveClasses->find(Type::reflectName());
+					iter != m_reflectiveClasses->cend())
+				{
+					return memberValuesInternal(iter->second, a_memberName, [&a_value]()
+						{
+							a_value.emplace_back<Type>(Type{});
+						});
+				}
+				return false;
 			}
 		}
 		else
@@ -71,8 +75,7 @@ public:
 			// is simple type
 			return memberValuesInternal(a_memberName, [&a_value](const std::string& a_strValue)
 				{
-					Type temp;
-					if (from_string(temp, a_strValue))
+					if (Type temp; from_string(temp, a_strValue))
 					{
 						a_value.emplace_back(std::move(temp));
 						return true;
@@ -91,11 +94,15 @@ public:
 			// is complex type
 			if (m_reflectiveClasses)
 			{
-
-				return memberValuesInternal(m_reflectiveClasses, a_memberName, [&a_value]()
-					{
-						a_value.emplace_back<Type>();
-					});
+				if (const auto iter = m_reflectiveClasses->find(Type::reflectName());
+					iter != m_reflectiveClasses->cend())
+				{
+					return memberValuesInternal(iter->second, a_memberName, [&a_value]()
+						{
+							a_value.emplace_back<Type>(Type{});
+						});
+				}
+				return false;
 			}
 		}
 		else
@@ -103,8 +110,7 @@ public:
 			// is simple type
 			return memberValuesInternal(a_memberName, [&a_value](const std::string& a_strValue)
 				{
-					Type temp;
-					if (from_string(temp, a_strValue))
+					if (Type temp; from_string(temp, a_strValue))
 					{
 						a_value.emplace_back(std::move(temp));
 						return true;
@@ -124,15 +130,19 @@ public:
 			// is complex type
 			if (m_reflectiveClasses)
 			{
-
-				return memberValuesInternal(m_reflectiveClasses, a_memberName, [&a_value, &index]()
-					{
-						if (a_value.size() < index)
+				if (const auto iter = m_reflectiveClasses->find(Type::reflectName());
+					iter != m_reflectiveClasses->cend())
+				{
+					return memberValuesInternal(iter->second, a_memberName, [&a_value, &index]()
 						{
-							a_value[index] = Type{};
-							++index;
-						}
-					});
+							if (a_value.size() < index)
+							{
+								a_value[index] = Type{};
+								++index;
+							}
+						});
+				}
+				return false;
 			}
 		}
 		else
@@ -140,8 +150,7 @@ public:
 			// is simple type
 			return memberValues(a_memberName, [&a_value, &index](const std::string& a_strValue)
 				{
-					Type temp;
-					if ((a_value.size() < index) && from_string(temp, a_strValue))
+					if (Type temp; (a_value.size() < index) && from_string(temp, a_strValue))
 					{
 						a_value[index] = std::move(temp);
 						++index;
@@ -187,8 +196,7 @@ public:
 	template<typename FlagType, typename BaseType>
 	bool flagValue(const std::string& a_memberName, FlagType& a_value)const
 	{
-		std::vector<std::string> values;
-		if (flagValueInternal(a_memberName, values))
+		if (std::vector<std::string> values; flagValueInternal(a_memberName, values))
 		{
 			for (const auto& str : values)
 			{
