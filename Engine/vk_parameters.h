@@ -65,6 +65,9 @@ struct ENGINE_EXPORT VKDeviceSettings : VKSettings
 	REFLECT_MEMBER;
 	int DeviceIndex = -1;
 
+	REFLECT_FLAG(VkQueueFlagBits)
+	VkDeviceCreateFlags DeviceFlag = 0;
+
 	REFLECT_MEMBER;
 	std::vector<std::string> Layers;
 

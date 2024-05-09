@@ -46,8 +46,9 @@ bool VkApplication::findQueue(const std::vector<VkQueueFamilyProperties>& a_queu
 		{
 			if ((properties.queueFlags & queueSettings.QueueFlag) == queueSettings.QueueFlag)
 			{
-				a_devInfo.Queues[queueSettings.QueueFlag].emplace_back(queueIndex);
-				iCounter -= std::min(properties.queueCount, iCounter);
+				uint32_t numQueue = std::min(properties.queueCount, iCounter);
+				a_devInfo.Queues[queueSettings.QueueFlag].emplace_back(QueueInfo{ queueIndex, numQueue });
+				iCounter -= numQueue;
 				if (iCounter == 0)
 					break;
 			}
@@ -99,18 +100,18 @@ VkEngineDevicePtr VkApplication::createDevice(const int a_devIndex, const VKDevi
 	std::vector<VkDeviceQueueCreateInfo> vQueueInfo;
 	for (const auto& [flag, indexList] : a_devInfo.Queues)
 	{
-		for (const int index : indexList)
+		for (const auto& queueInfo : indexList)
 		{
 			VkDeviceQueueCreateInfo queueCreateInfo = gen_queueCreateInfo();
 			queueCreateInfo.flags = flag;
-			queueCreateInfo.queueFamilyIndex = index;
-			queueCreateInfo.queueCount;
+			queueCreateInfo.queueFamilyIndex = queueInfo.QueueFamily;
+			queueCreateInfo.queueCount = queueInfo.QueueCount;
+			vQueueInfo.emplace_back(std::move(queueCreateInfo));
 		}
-		// todo
 	}
 
 	VkDeviceCreateInfo deviceCreateInfo = gen_deviceCreateInfo();
-	deviceCreateInfo.flags;
+	deviceCreateInfo.flags = a_devInfo.Flag;
 	deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(vQueueInfo.size());
 	deviceCreateInfo.pQueueCreateInfos = vQueueInfo.data();;
 	deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(a_devInfo.vLayers.size());
@@ -225,6 +226,7 @@ bool VkApplication::findCompatibleDevices(const VKDeviceSettings& a_settings, st
 		vkEnumeratePhysicalDevices(m_vulkanInstance, &numDevices, vDevices.data());
 		int deviceIndex = 0;
 		VKDeviceInfo devInfo;
+		devInfo.Flag = a_settings.DeviceFlag;
 		devInfo.vExtension = vStringToChar(a_settings.Extensions);
 		devInfo.vLayers = vStringToChar(a_settings.Layers);
 
