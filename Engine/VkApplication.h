@@ -30,7 +30,7 @@ using QueueList = std::vector<QueueInfo>;
 /*@brief configuration for compatible device*/
 struct VKDeviceInfo
 {
-	int DeviceId;										/*!< device identifier in vulkan instance*/
+	VkPhysicalDevice PhysicalDeviceHandle;				/*!< device handle*/
 	VkDeviceCreateFlags Flag;							/*!< device flags*/
 	VkPhysicalDeviceType DeviceType;					/*!< device type*/
 	std::string DeviceName;								/*!< name of device*/
@@ -59,7 +59,7 @@ public:
 	[[nodiscard]] constexpr device_const_iterator cend()const { return m_devices.cend(); }
 	[[nodiscard]] constexpr size_t numDevices()const { return m_devices.size(); }
 	[[nodiscard]] VkEngineDevicePtr operator[](const size_t& a_index)const { return m_devices[a_index]; }
-	VkEngineDevicePtr createDevice(const int a_devIndex, const VKDeviceInfo& a_devInfo);
+	VkEngineDevicePtr createDevice(const VKDeviceSettings& a_settings, const VKDeviceInfo& a_devInfo);
 
 	/*@brief display instance capabilities*/
 	static void displayInstanceCapabilities(IRHICapabilitiesDisplayer& a_displayer);

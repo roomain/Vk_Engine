@@ -16,15 +16,13 @@ class VkEngineDevice
 {
 	friend VkApplication;
 
-private:
-	explicit VkEngineDevice(const VkInstance a_vkInstanceHandle, const VkPhysicalDevice a_physical, const VkDevice a_logical);
-
 protected:
 	VkInstance m_vulkanInstance = VK_NULL_HANDLE;	/*!< vulkan instance*/
 	VkPhysicalDevice m_physical = VK_NULL_HANDLE;	/*!< physical device that vulkan will use*/
 	VkDevice m_device = VK_NULL_HANDLE;				/*!< vulkan logical device*/
 
 public:
+	explicit VkEngineDevice(const VkInstance a_vkInstanceHandle, const VkPhysicalDevice a_physical, const VkDevice a_logical);
 	VkEngineDevice() = delete;
 	virtual ~VkEngineDevice();
 	[[nodiscard]] constexpr bool isValid()const { return m_device != VK_NULL_HANDLE; }

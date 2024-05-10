@@ -211,6 +211,12 @@ inline bool from_string(VkSubpassContents& a_data, const std::string& a_value)
 	return string_to_enum(a_value, a_data);
 }
 
+template<>
+inline bool from_string(VkQueueFlagBits& a_data, const std::string& a_value)
+{
+	return string_to_enum(a_value, a_data);
+}
+
 /*template<>
 inline bool from_string(VkAccessFlags& a_data, const std::string& a_value)
 {
@@ -245,4 +251,6 @@ template<>
 inline bool from_string(VkImageUsageFlags& a_data, const std::string& a_value)
 {
 	return FlagInput<VkImageUsageFlagBits>::string_to_flag(a_value, a_data);
-}*/
+}
+
+*/

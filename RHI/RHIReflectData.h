@@ -43,6 +43,7 @@ private:
 	bool setTempTreeNode(const RHIReflectDataPtr& a_reflecData, const std::string& a_memberName)const;
 	bool flagValueInternal(const std::string& a_memberName, std::vector<std::string>& a_value)const;
 	static void releaseTempTreeNode(const RHIReflectDataPtr& a_reflecData);
+	static std::shared_ptr<RHIReflectData> findOrCreateReflectData(const std::string& a_typename);
 
 public:
 	NOT_COPIABLE(RHIReflectData)
@@ -57,17 +58,12 @@ public:
 		if constexpr (Is_reflective_v<Type> && Has_reflectName_v<Type>)
 		{
 			// is complex type
-			if (m_reflectiveClasses)
+			if (auto reflect = findOrCreateReflectData(Type::reflectName()))
 			{
-				if (const auto iter = m_reflectiveClasses->find(Type::reflectName());
-					iter != m_reflectiveClasses->cend())
-				{
-					return memberValuesInternal(iter->second, a_memberName, [&a_value]()
-						{
-							a_value.emplace_back<Type>(Type{});
-						});
-				}
-				return false;
+				return memberValuesInternal(reflect, a_memberName, [&a_value]()
+					{
+						a_value.emplace_back<Type>(Type{});
+					});
 			}
 		}
 		else
@@ -92,17 +88,12 @@ public:
 		if constexpr (Is_reflective_v<Type> && Has_reflectName_v<Type>)
 		{
 			// is complex type
-			if (m_reflectiveClasses)
+			if (auto reflect = findOrCreateReflectData(Type::reflectName()))
 			{
-				if (const auto iter = m_reflectiveClasses->find(Type::reflectName());
-					iter != m_reflectiveClasses->cend())
-				{
-					return memberValuesInternal(iter->second, a_memberName, [&a_value]()
-						{
-							a_value.emplace_back<Type>(Type{});
-						});
-				}
-				return false;
+				return memberValuesInternal(reflect, a_memberName, [&a_value]()
+					{
+						a_value.emplace_back<Type>(Type{});
+					});
 			}
 		}
 		else
@@ -128,21 +119,16 @@ public:
 		if constexpr (Is_reflective_v<Type> && Has_reflectName_v<Type>)
 		{
 			// is complex type
-			if (m_reflectiveClasses)
+			if (auto reflect = findOrCreateReflectData(Type::reflectName()))
 			{
-				if (const auto iter = m_reflectiveClasses->find(Type::reflectName());
-					iter != m_reflectiveClasses->cend())
-				{
-					return memberValuesInternal(iter->second, a_memberName, [&a_value, &index]()
+				return memberValuesInternal(reflect, a_memberName, [&a_value, &index]()
+					{
+						if (a_value.size() < index)
 						{
-							if (a_value.size() < index)
-							{
-								a_value[index] = Type{};
-								++index;
-							}
-						});
-				}
-				return false;
+							a_value[index] = Type{};
+							++index;
+						}
+					});
 			}
 		}
 		else
@@ -168,16 +154,12 @@ public:
 		if constexpr (Is_reflective_v<Type> && Has_reflectName_v<Type>)
 		{
 			// is complex type
-			if (m_reflectiveClasses)
+			if (auto reflect = findOrCreateReflectData(Type::reflectName()))
 			{
-				if (const auto iter = m_reflectiveClasses->find(Type::reflectName());
-					iter != m_reflectiveClasses->cend())
-				{
-					setTempTreeNode(iter->second, a_memberName);
-					Type::init_reflect(a_value);
-					RHIReflectData::releaseTempTreeNode(iter->second);
-					return true;
-				}
+				setTempTreeNode(reflect, a_memberName);
+				Type::init_reflect(a_value);
+				RHIReflectData::releaseTempTreeNode(reflect);
+				return true;
 			}
 		}
 		else

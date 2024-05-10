@@ -1,5 +1,6 @@
 #include "pch.h"
 #include "vk_parameters.h"
+#include "vk_parameters.generated.h"
 
 
 

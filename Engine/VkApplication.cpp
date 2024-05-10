@@ -94,7 +94,66 @@ void VkApplication::release()
 	}
 }
 
-VkEngineDevicePtr VkApplication::createDevice(const int a_devIndex, const VKDeviceInfo& a_devInfo)
+void getFeatures(const VKDeviceSettings& a_settings, VkPhysicalDeviceFeatures& a_features)
+{
+	a_features.robustBufferAccess = a_settings.RobustBufferAccess;
+	a_features.fullDrawIndexUint32 = a_settings.FullDrawIndexUint32;
+	a_features.imageCubeArray = a_settings.ImageCubeArray;
+	a_features.independentBlend = a_settings.IndependentBlend;
+	a_features.geometryShader = a_settings.GeometryShader;
+	a_features.tessellationShader = a_settings.TessellationShader;
+	a_features.sampleRateShading = a_settings.SampleRateShading;
+	a_features.dualSrcBlend = a_settings.DualSrcBlend;
+	a_features.logicOp = a_settings.LogicOp;
+	a_features.multiDrawIndirect = a_settings.MultiDrawIndirect;
+	a_features.drawIndirectFirstInstance = a_settings.DrawIndirectFirstInstance;
+	a_features.depthClamp = a_settings.DepthClamp;
+	a_features.depthBiasClamp = a_settings.DepthBiasClamp;
+	a_features.fillModeNonSolid = a_settings.FillModeNonSolid;
+	a_features.depthBounds = a_settings.DepthBounds;
+	a_features.wideLines = a_settings.WideLines;
+	a_features.largePoints = a_settings.LargePoints;
+	a_features.alphaToOne = a_settings.AlphaToOne;
+	a_features.multiViewport = a_settings.MultiViewport;
+	a_features.samplerAnisotropy = a_settings.SamplerAnisotropy;
+	a_features.textureCompressionETC2 = a_settings.TextureCompressionETC2;
+	a_features.textureCompressionASTC_LDR = a_settings.TextureCompressionASTC_LDR;
+	a_features.textureCompressionBC = a_settings.TextureCompressionBC;
+	a_features.occlusionQueryPrecise = a_settings.OcclusionQueryPrecise;
+	a_features.pipelineStatisticsQuery = a_settings.PipelineStatisticsQuery;
+	a_features.vertexPipelineStoresAndAtomics = a_settings.VertexPipelineStoresAndAtomics;
+	a_features.fragmentStoresAndAtomics = a_settings.FragmentStoresAndAtomics;
+	a_features.shaderTessellationAndGeometryPointSize = a_settings.ShaderTessellationAndGeometryPointSize;
+	a_features.shaderImageGatherExtended = a_settings.ShaderImageGatherExtended;
+	a_features.shaderStorageImageExtendedFormats = a_settings.ShaderStorageImageExtendedFormats;
+	a_features.shaderStorageImageMultisample = a_settings.ShaderStorageImageMultisample;
+	a_features.shaderStorageImageReadWithoutFormat = a_settings.ShaderStorageImageReadWithoutFormat;
+	a_features.shaderStorageImageWriteWithoutFormat = a_settings.ShaderStorageImageWriteWithoutFormat;
+	a_features.shaderUniformBufferArrayDynamicIndexing = a_settings.ShaderUniformBufferArrayDynamicIndexing;
+	a_features.shaderSampledImageArrayDynamicIndexing = a_settings.ShaderSampledImageArrayDynamicIndexing;
+	a_features.shaderStorageBufferArrayDynamicIndexing = a_settings.ShaderStorageBufferArrayDynamicIndexing;
+	a_features.shaderStorageImageArrayDynamicIndexing = a_settings.ShaderStorageImageArrayDynamicIndexing;
+	a_features.shaderClipDistance = a_settings.ShaderClipDistance;
+	a_features.shaderCullDistance = a_settings.ShaderCullDistance;
+	a_features.shaderFloat64 = a_settings.ShaderFloat64;
+	a_features.shaderInt64 = a_settings.ShaderInt64;
+	a_features.shaderInt16 = a_settings.ShaderInt16;
+	a_features.shaderResourceResidency = a_settings.ShaderResourceResidency;
+	a_features.shaderResourceMinLod = a_settings.ShaderResourceMinLod;
+	a_features.sparseBinding = a_settings.SparseBinding;
+	a_features.sparseResidencyBuffer = a_settings.SparseResidencyBuffer;
+	a_features.sparseResidencyImage2D = a_settings.SparseResidencyImage2D;
+	a_features.sparseResidencyImage3D = a_settings.SparseResidencyImage3D;
+	a_features.sparseResidency2Samples = a_settings.SparseResidency2Samples;
+	a_features.sparseResidency4Samples = a_settings.SparseResidency4Samples;
+	a_features.sparseResidency8Samples = a_settings.SparseResidency8Samples;
+	a_features.sparseResidency16Samples = a_settings.SparseResidency16Samples;
+	a_features.sparseResidencyAliased = a_settings.SparseResidencyAliased;
+	a_features.variableMultisampleRate = a_settings.VariableMultisampleRate;
+	a_features.inheritedQueries = a_settings.InheritedQueries;
+}
+
+VkEngineDevicePtr VkApplication::createDevice(const VKDeviceSettings& a_settings, const VKDeviceInfo& a_devInfo)
 {
 	VkEngineDevicePtr device;
 	std::vector<VkDeviceQueueCreateInfo> vQueueInfo;
@@ -110,6 +169,9 @@ VkEngineDevicePtr VkApplication::createDevice(const int a_devIndex, const VKDevi
 		}
 	}
 
+	VkPhysicalDeviceFeatures devFeatures;
+	getFeatures(a_settings, devFeatures);
+
 	VkDeviceCreateInfo deviceCreateInfo = gen_deviceCreateInfo();
 	deviceCreateInfo.flags = a_devInfo.Flag;
 	deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(vQueueInfo.size());
@@ -118,7 +180,12 @@ VkEngineDevicePtr VkApplication::createDevice(const int a_devIndex, const VKDevi
 	deviceCreateInfo.ppEnabledLayerNames = a_devInfo.vLayers.data();
 	deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(a_devInfo.vExtension.size());
 	deviceCreateInfo.ppEnabledExtensionNames = a_devInfo.vExtension.data();
-	deviceCreateInfo.pEnabledFeatures;
+	deviceCreateInfo.pEnabledFeatures = &devFeatures;
+
+	VkDevice logical;
+	VK_CHECK(vkCreateDevice(a_devInfo.PhysicalDeviceHandle, &deviceCreateInfo, nullptr, &logical));
+	device = std::make_shared<VkEngineDevice>(m_vulkanInstance, a_devInfo.PhysicalDeviceHandle, logical);
+	m_devices.emplace_back(device);
 	return device;
 }
 
@@ -157,7 +224,7 @@ void VkApplication::displayDevicesCapabilities(IRHICapabilitiesDisplayer& a_disp
 {
 	if (m_vulkanInstance != VK_NULL_HANDLE)
 	{
-		uint32_t numDevices;
+		uint32_t numDevices = 0;
 		vkEnumeratePhysicalDevices(m_vulkanInstance, &numDevices, nullptr);
 		std::vector<VkPhysicalDevice> vDevices{ numDevices };
 		vkEnumeratePhysicalDevices(m_vulkanInstance, &numDevices, vDevices.data());
@@ -172,7 +239,7 @@ void VkApplication::displayDevicesCapabilities(IRHICapabilitiesDisplayer& a_disp
 			a_displayer.setCapability("api version", prop.apiVersion);
 			a_displayer.setCapability("driver version", prop.driverVersion);
 
-			uint32_t numExtension;
+			uint32_t numExtension = 0;
 			vkEnumerateDeviceExtensionProperties(device, nullptr, &numExtension, nullptr);
 			std::vector<VkExtensionProperties> vProperties(numExtension);
 			vkEnumerateDeviceExtensionProperties(device, nullptr, &numExtension, vProperties.data());
@@ -181,7 +248,7 @@ void VkApplication::displayDevicesCapabilities(IRHICapabilitiesDisplayer& a_disp
 				display(a_displayer, extProp);
 			a_displayer.popCategory();
 
-			uint32_t numLayers;
+			uint32_t numLayers = 0;
 			vkEnumerateDeviceLayerProperties(device, &numLayers, nullptr);
 			std::vector<VkLayerProperties> vLayers(numLayers);
 			vkEnumerateDeviceLayerProperties(device, &numLayers, vLayers.data());
@@ -226,7 +293,7 @@ bool VkApplication::findCompatibleDevices(const VKDeviceSettings& a_settings, st
 		vkEnumeratePhysicalDevices(m_vulkanInstance, &numDevices, vDevices.data());
 		int deviceIndex = 0;
 		VKDeviceInfo devInfo;
-		devInfo.Flag = a_settings.DeviceFlag;
+		//devInfo.Flag = a_settings.DeviceFlag;
 		devInfo.vExtension = vStringToChar(a_settings.Extensions);
 		devInfo.vLayers = vStringToChar(a_settings.Layers);
 
@@ -234,7 +301,7 @@ bool VkApplication::findCompatibleDevices(const VKDeviceSettings& a_settings, st
 		{	
 			// init device info
 			devInfo.Queues.clear();			
-			devInfo.DeviceId = deviceIndex;
+			devInfo.PhysicalDeviceHandle = device;
 			if (VkEngineDevice::checkDeviceLayers(device, a_settings.Layers) &&
 				VkEngineDevice::checkDeviceExtension(device, a_settings.Extensions))
 			{

@@ -5,12 +5,19 @@
 * @author Roomain
 ************************************************/
 #include <string>
+#include "stringUtils.h"
 
 #pragma message(__FILE__ "Include extended from_string before include generated header")
 
 template<typename Type>
 bool from_string([[maybe_unused]] Type& a_data, [[maybe_unused]] const std::string& a_value) { return false; }
 
+template<>
+inline bool from_string(bool& a_data, const std::string& a_value)
+{
+	a_data = iCompare(a_value, "true");
+	return true;
+}
 
 template<>
 inline bool from_string(int& a_data, const std::string& a_value)

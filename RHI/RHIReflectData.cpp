@@ -23,6 +23,23 @@ void RHIReflectData::releaseTempTreeNode(const RHIReflectDataPtr& a_reflecData)
 	a_reflecData->m_internData->m_extenJsonContent = nullptr;
 }
 
+std::shared_ptr<RHIReflectData> RHIReflectData::findOrCreateReflectData(const std::string& a_typename)
+{
+	std::shared_ptr<RHIReflectData> pReflective;
+	if (RHIReflectData::m_reflectiveClasses)
+	{
+		if (const auto iter = RHIReflectData::m_reflectiveClasses->find(a_typename); iter != RHIReflectData::m_reflectiveClasses->cend())
+		{
+			pReflective = iter->second;
+		}
+		else
+		{
+			pReflective = RHIReflectData::m_reflectiveClasses->emplaceNewReflectData(a_typename);
+		}
+	}
+	return pReflective;
+}
+
 bool RHIReflectData::memberValuesInternal(const RHIReflectDataPtr& a_reflecData, const std::string& a_memberName, const LoadInstance& a_callback)const
 {
 	if (m_internData->m_extenJsonContent)
@@ -56,7 +73,15 @@ bool RHIReflectData::memberValuesInternal(const RHIReflectDataPtr& a_reflecData,
 
 bool RHIReflectData::flagValueInternal(const std::string& a_memberName, std::vector<std::string>& a_value)const
 {
-	if (auto iterValue = m_internData->m_localJsonContent.find(a_memberName); iterValue != m_internData->m_localJsonContent.not_found())
+	if (m_internData->m_extenJsonContent)
+	{
+		if (auto iterValue = m_internData->m_extenJsonContent->find(a_memberName); iterValue != m_internData->m_extenJsonContent->not_found())
+		{
+			split(iterValue->second.data(), '|', a_value);
+			return true;
+		}
+	}
+	else if (auto iterValue = m_internData->m_localJsonContent.find(a_memberName); iterValue != m_internData->m_localJsonContent.not_found())
 	{
 		split(iterValue->second.data(), '|', a_value);
 		return true;

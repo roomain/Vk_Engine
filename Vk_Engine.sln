@@ -4,12 +4,18 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 17.9.34714.143
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Engine", "Engine\Engine.vcxproj", "{8AEB1F29-1D38-44B2-B781-67A72AB85FDB}"
+	ProjectSection(ProjectDependencies) = postProject
+		{2CB3BD35-C64D-4B10-952C-1836F4B01386} = {2CB3BD35-C64D-4B10-952C-1836F4B01386}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RHI", "RHI\RHI.vcxproj", "{2CB3BD35-C64D-4B10-952C-1836F4B01386}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTests_Vk_Engine", "UnitTests_Vk_Engine\UnitTests_Vk_Engine.vcxproj", "{4569227F-7270-4D3A-ABE4-CFD0F31C8626}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EngineTester", "EngineTester\EngineTester.vcxproj", "{F3E7C69C-11E3-4F11-9EDB-3D54AB3DC7D1}"
+	ProjectSection(ProjectDependencies) = postProject
+		{8AEB1F29-1D38-44B2-B781-67A72AB85FDB} = {8AEB1F29-1D38-44B2-B781-67A72AB85FDB}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -329,28 +329,20 @@ void display(IRHICapabilitiesDisplayer& a_displayer, const VkQueueFamilyProperti
 
 void display(IRHICapabilitiesDisplayer& a_displayer, const VkExtensionProperties& a_prop)
 {
-	for (const auto propVal : a_prop.extensionName)
-	{
-		a_displayer.setCapability("extension Name", propVal);
-	}
-
+	a_displayer.pushCategory("Extension");
+	a_displayer.setCapability("extension Name", std::string(a_prop.extensionName));
 	a_displayer.setCapability("spec Version", a_prop.specVersion);
+	a_displayer.popCategory();
 }
 
 void display(IRHICapabilitiesDisplayer& a_displayer, const VkLayerProperties& a_prop)
 {
-	for (const auto propVal : a_prop.layerName)
-	{
-		a_displayer.setCapability("layer Name", propVal);
-	}
-
+	a_displayer.pushCategory("Layer");
+	a_displayer.setCapability("layer Name", std::string(a_prop.layerName));
 	a_displayer.setCapability("spec Version", a_prop.specVersion);
 	a_displayer.setCapability("implementation Version", a_prop.implementationVersion);
-	for (const auto propVal : a_prop.description)
-	{
-		a_displayer.setCapability("description", propVal);
-	}
-
+	a_displayer.setCapability("layer description", std::string(a_prop.description));
+	a_displayer.popCategory();
 }
 
 void display(IRHICapabilitiesDisplayer& a_displayer, const VkMemoryRequirements& a_prop)

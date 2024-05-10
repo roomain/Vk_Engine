@@ -21,9 +21,11 @@ using RHIReflectDataSet = std::unordered_map<std::string, RHIReflectDataPtr>;
 /*@brief regroup all reflective class values read from Json files*/
 class RHI_EXPORT RHIReflectiveClassSet : public std::enable_shared_from_this<RHIReflectiveClassSet>
 {
+	friend class RHIReflectData;
+
 private:
 	RHIReflectDataSet m_classesDataset;	/*!< values of each class*/
-
+	RHIReflectDataPtr emplaceNewReflectData(const std::string& a_name);
 	static void loadConfiguration(const std::string& a_directory, RHIReflectDataSet& a_dataset);
 	static void loadConfigurationFile(const std::string& a_file, RHIReflectDataSet& a_dataset);
 

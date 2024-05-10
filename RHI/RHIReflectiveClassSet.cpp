@@ -9,6 +9,13 @@
 
 namespace fs = std::filesystem;
 
+RHIReflectDataPtr RHIReflectiveClassSet::emplaceNewReflectData(const std::string& a_name)
+{
+	return m_classesDataset.try_emplace(a_name, std::make_unique<RHIReflectData>(
+		std::make_shared<RHIReflectData_intern>()
+	)).first->second;
+}
+
 void RHIReflectiveClassSet::loadConfigurationFile(const std::string& a_file, RHIReflectDataSet& a_dataset)
 {
 	boost::property_tree::ptree propTree;

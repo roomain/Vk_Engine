@@ -22,7 +22,7 @@ struct SDLApp
 
 void initializeSDL(SDLApp& application)
 {
-    SDL_Init(SDL_INIT_EVERYTHING);
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
     SDL_CHECK(SDL_Vulkan_LoadLibrary(nullptr))
     application.window = SDL_CreateWindow(application.appName.c_str(),
         application.windowWidth, application.windowHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN);
@@ -36,24 +36,25 @@ int main()
     VulkanCapabilitiesDisplayer displayer;
     VkApplication::displayInstanceCapabilities(displayer);
 
-    //RHIManager::instance().loadConfiguration("..\\..\\test_resources");
+    RHIManager::instance().loadConfiguration("resources");
     VKInstanceSettings settings;
-    settings.ApplicationName = "Engine_test";
-    settings.EngineName = "Engine";
-    settings.AppVersion = 1;
-    settings.Layers = {"VK_LAYER_KHRONOS_validation"};
-    settings.Extensions = {"VK_KHR_surface", "VK_EXT_debug_utils"};
+    //settings.ApplicationName = "Engine_test";
+    //settings.EngineName = "Engine";
+    //settings.AppVersion = 1;
+    //settings.Layers = {"VK_LAYER_KHRONOS_validation"};
+    //settings.Extensions = {"VK_KHR_surface", "VK_EXT_debug_utils"};
     try
     {
         VkApplication app(settings);
         app.displayDevicesCapabilities(displayer);
         initializeSDL(sdlApp);
 
+        VKDeviceSettings devSettings;
         // todo
 
         // create surface
         VkSurfaceKHR surface;
-        SDL_Vulkan_CreateSurface(sdlApp.window, app.vulkanInstance(), &surface);
+        SDL_Vulkan_CreateSurface(sdlApp.window, app.vulkanInstance(), nullptr, &surface);
 
         bool running = true;
         while (running)
