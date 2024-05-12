@@ -6,10 +6,14 @@
 #include "vk_parameters.h"
 #include "vk_initializers.h"
 
-VkEngineDevice::VkEngineDevice(const VkInstance a_vkInstanceHandle, const VkPhysicalDevice a_physical, const VkDevice a_logical, const std::unordered_map<VkQueueFlags, QueueList>& a_queueInfo) :
+VkEngineDevice::VkEngineDevice(const VkInstance a_vkInstanceHandle, const VkPhysicalDevice a_physical, const VkDevice a_logical, const QueueConfMap& a_queueInfo) :
     m_vulkanInstance{ a_vkInstanceHandle }, m_physical{ a_physical }, m_device{ a_logical }
 {
-	//
+    for (const auto& [flag, list] : a_queueInfo)
+    {
+        for (const auto& conf : list)
+            m_queueMap[flag].emplace_back(QueueInfo{ conf.QueueFamily, conf.QueueCount });
+    }
 }
 
 VkEngineDevice::~VkEngineDevice()
@@ -17,12 +21,70 @@ VkEngineDevice::~VkEngineDevice()
     vkDestroyDevice(m_device, nullptr);
 }
 
-void VkEngineDevice::createCommandPool(const uint32_t a_familyIndex)
+bool VkEngineDevice::createCommandPool(const VkQueueFlags a_Queueflag)
 {
-    VkCommandPoolCreateInfo cmdPoolInfo = gen_cmdPoolCreateInfo();
-    cmdPoolInfo.queueFamilyIndex = a_familyIndex;
-    cmdPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-    VK_CHECK(vkCreateCommandPool(m_device, &cmdPoolInfo, nullptr, &cmdPool));
+    if (auto iter = m_queueMap.find(a_Queueflag); iter != m_queueMap.cend())
+    {
+        size_t CmdpoolCount = commandPoolCount(a_Queueflag);
+        for (const auto& queueInfo : iter->second)
+        {
+            if (CmdpoolCount == 0)
+            {
+                VkCommandPoolCreateInfo cmdPoolInfo = gen_cmdPoolCreateInfo();
+                cmdPoolInfo.queueFamilyIndex = queueInfo.QueueFamily;
+                cmdPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+                VkCommandPool cmdPool;
+                VK_CHECK(vkCreateCommandPool(m_device, &cmdPoolInfo, nullptr, &cmdPool));
+                m_cmdPools[a_Queueflag].emplace_back(cmdPool);
+                return true;
+            }
+            else
+            {
+                CmdpoolCount -= queueInfo.QueueCount;
+            }
+        }
+    }
+    return false;
+   
+}
+
+int VkEngineDevice::createCommandsPool(const VkQueueFlags a_Queueflag, const int a_numToCreate)
+{
+    if (auto iter = m_queueMap.find(a_Queueflag); iter != m_queueMap.cend())
+    {
+        int counter = 0;
+        size_t CmdpoolCount = commandPoolCount(a_Queueflag);
+        for (const auto& queueInfo : iter->second)
+        {
+            if (CmdpoolCount == 0 && counter < a_numToCreate)
+            {
+                VkCommandPoolCreateInfo cmdPoolInfo = gen_cmdPoolCreateInfo();
+                cmdPoolInfo.queueFamilyIndex = queueInfo.QueueFamily;
+                cmdPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+                VkCommandPool cmdPool;
+                VK_CHECK(vkCreateCommandPool(m_device, &cmdPoolInfo, nullptr, &cmdPool));
+                m_cmdPools[a_Queueflag].emplace_back(cmdPool);
+                ++counter;
+
+                if (counter >= a_numToCreate)
+                    return counter;
+            }
+            else
+            {
+                CmdpoolCount -= queueInfo.QueueCount;
+            }
+        }
+    }
+    return 0;
+}
+
+size_t VkEngineDevice::commandPoolCount(const VkQueueFlags a_Queueflag) const
+{
+    if (auto iter = m_cmdPools.find(a_Queueflag); iter != m_cmdPools.cend())
+    {
+        return iter->second.size();
+    }
+    return 0;
 }
 
 void VkEngineDevice::waitForDeviceIdle()

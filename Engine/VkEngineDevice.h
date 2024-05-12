@@ -20,12 +20,11 @@ struct QueueInfo
 	uint32_t QueueCount;
 };
 
-struct Queue : QueueInfo
-{
-	std::vector<VkCommandPool> CmdPools;
-};
-using QueueList = std::vector<Queue>;
-using QueuePools = std::unordered_map<VkQueueFlags, QueueList>;
+using QueueInfoList = std::vector<QueueInfo>;
+using QueueInfoMap = std::unordered_map<VkQueueFlags, QueueInfoList>;
+
+using CmdPoolList = std::vector<VkCommandPool>;
+using CmdPoolMap = std::unordered_map<VkQueueFlags, CmdPoolList>;
 
 
 struct QueueConfig : QueueInfo
@@ -33,8 +32,8 @@ struct QueueConfig : QueueInfo
 	std::vector<float> Priorities;
 };
 
-
 using QueueConfList = std::vector<QueueConfig>;
+using QueueConfMap = std::unordered_map<VkQueueFlags, QueueConfList>;
 
 /*@brief configuration for compatible device*/
 struct VKDeviceInfo
@@ -43,7 +42,7 @@ struct VKDeviceInfo
 	VkDeviceCreateFlags Flag = 0;										/*!< device flags*/
 	VkPhysicalDeviceType DeviceType = VK_PHYSICAL_DEVICE_TYPE_OTHER;	/*!< device type*/
 	std::string DeviceName;												/*!< name of device*/
-	std::unordered_map<VkQueueFlags, QueueConfList> Queues;				/*!< compatible queues by flag*/
+	QueueConfMap Queues;												/*!< compatible queues per flag*/
 };
 
 /*@brief vulkan device*/
@@ -55,10 +54,11 @@ protected:
 	VkInstance m_vulkanInstance = VK_NULL_HANDLE;	/*!< vulkan instance*/
 	VkPhysicalDevice m_physical = VK_NULL_HANDLE;	/*!< physical device that vulkan will use*/
 	VkDevice m_device = VK_NULL_HANDLE;				/*!< vulkan logical device*/
-	QueuePools m_queuePools;						/*!< used queues*/
+	QueueInfoMap m_queueMap;						/*!< used queues*/
+	CmdPoolMap m_cmdPools;							/*!< command pool per type*/
 
-	explicit VkEngineDevice(const VkInstance a_vkInstanceHandle, const VkPhysicalDevice a_physical, const VkDevice a_logical, const std::unordered_map<VkQueueFlags, QueueList>& a_queueInfo);
-	void createCommandPool(const uint32_t a_familyIndex);
+	explicit VkEngineDevice(const VkInstance a_vkInstanceHandle, const VkPhysicalDevice a_physical, const VkDevice a_logical, const QueueConfMap& a_queueInfo);
+	
 
 public:	
 	VkEngineDevice() = delete;
@@ -72,6 +72,9 @@ public:
 	std::shared_ptr<VkSwapChain> createSwapChain(/*todo*/);
 
 	// create command pool
+	bool createCommandPool(const VkQueueFlags a_Queueflag);
+	int createCommandsPool(const VkQueueFlags a_Queueflag, const int a_numToCreate);
+	size_t commandPoolCount(const VkQueueFlags a_Queueflag) const;
 
 	// create frame buffer
 
