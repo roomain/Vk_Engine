@@ -19,25 +19,7 @@
 class IRHICapabilitiesDisplayer;
 struct VKInstanceSettings;
 
-struct QueueInfo
-{
-	uint32_t QueueFamily;
-	uint32_t QueueCount;
-};
 
-using QueueList = std::vector<QueueInfo>;
-
-/*@brief configuration for compatible device*/
-struct VKDeviceInfo
-{
-	VkPhysicalDevice PhysicalDeviceHandle;				/*!< device handle*/
-	VkDeviceCreateFlags Flag;							/*!< device flags*/
-	VkPhysicalDeviceType DeviceType;					/*!< device type*/
-	std::string DeviceName;								/*!< name of device*/
-	std::unordered_map<VkQueueFlags, QueueList> Queues;	/*!< compatible queues by flag*/
-	std::vector<const char*> vExtension;
-	std::vector<const char*> vLayers;
-};
 
 class ENGINE_EXPORT VkApplication
 {

@@ -6,7 +6,7 @@
 #include "vk_parameters.h"
 #include "vk_initializers.h"
 
-VkEngineDevice::VkEngineDevice(const VkInstance a_vkInstanceHandle, const VkPhysicalDevice a_physical, const VkDevice a_logical) :
+VkEngineDevice::VkEngineDevice(const VkInstance a_vkInstanceHandle, const VkPhysicalDevice a_physical, const VkDevice a_logical, const std::unordered_map<VkQueueFlags, QueueList>& a_queueInfo) :
     m_vulkanInstance{ a_vkInstanceHandle }, m_physical{ a_physical }, m_device{ a_logical }
 {
 	//
@@ -14,7 +14,15 @@ VkEngineDevice::VkEngineDevice(const VkInstance a_vkInstanceHandle, const VkPhys
 
 VkEngineDevice::~VkEngineDevice()
 {
-	//
+    vkDestroyDevice(m_device, nullptr);
+}
+
+void VkEngineDevice::createCommandPool(const uint32_t a_familyIndex)
+{
+    VkCommandPoolCreateInfo cmdPoolInfo = gen_cmdPoolCreateInfo();
+    cmdPoolInfo.queueFamilyIndex = a_familyIndex;
+    cmdPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    VK_CHECK(vkCreateCommandPool(m_device, &cmdPoolInfo, nullptr, &cmdPool));
 }
 
 void VkEngineDevice::waitForDeviceIdle()

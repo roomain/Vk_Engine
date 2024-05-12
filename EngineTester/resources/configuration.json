@@ -9,7 +9,7 @@
     "VKDeviceSettings" : {
         "DeviceFlag" : 0,
         "Layers": [],
-        "Extensions": ["VK_KHR_SWAPCHAIN_EXTENSION_NAME"],
+        "Extensions": ["VK_KHR_swapchain"],
         "QueuesSettings": [
             {
                 "Count" : 1,

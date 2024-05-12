@@ -47,7 +47,10 @@ bool VkApplication::findQueue(const std::vector<VkQueueFamilyProperties>& a_queu
 			if ((properties.queueFlags & queueSettings.QueueFlag) == queueSettings.QueueFlag)
 			{
 				uint32_t numQueue = std::min(properties.queueCount, iCounter);
-				a_devInfo.Queues[queueSettings.QueueFlag].emplace_back(QueueInfo{ queueIndex, numQueue });
+				std::vector<float> vPriority(numQueue);
+				for (auto& priority : vPriority)
+					priority = queueSettings.Priority;
+				a_devInfo.Queues[queueSettings.QueueFlag].emplace_back(QueueConfig{ queueIndex, numQueue, std::move(vPriority)});
 				iCounter -= numQueue;
 				if (iCounter == 0)
 					break;
@@ -162,9 +165,10 @@ VkEngineDevicePtr VkApplication::createDevice(const VKDeviceSettings& a_settings
 		for (const auto& queueInfo : indexList)
 		{
 			VkDeviceQueueCreateInfo queueCreateInfo = gen_queueCreateInfo();
-			queueCreateInfo.flags = flag;
+			queueCreateInfo.flags = 0;// VK_DEVICE_QUEUE_CREATE_PROTECTED_BIT;
 			queueCreateInfo.queueFamilyIndex = queueInfo.QueueFamily;
 			queueCreateInfo.queueCount = queueInfo.QueueCount;
+			queueCreateInfo.pQueuePriorities = queueInfo.Priorities.data();
 			vQueueInfo.emplace_back(std::move(queueCreateInfo));
 		}
 	}
@@ -172,19 +176,23 @@ VkEngineDevicePtr VkApplication::createDevice(const VKDeviceSettings& a_settings
 	VkPhysicalDeviceFeatures devFeatures;
 	getFeatures(a_settings, devFeatures);
 
+
+	auto vExtension = vStringToChar(a_settings.Extensions);
+	auto vLayers = vStringToChar(a_settings.Layers);
+
 	VkDeviceCreateInfo deviceCreateInfo = gen_deviceCreateInfo();
 	deviceCreateInfo.flags = a_devInfo.Flag;
 	deviceCreateInfo.queueCreateInfoCount = static_cast<uint32_t>(vQueueInfo.size());
 	deviceCreateInfo.pQueueCreateInfos = vQueueInfo.data();;
-	deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(a_devInfo.vLayers.size());
-	deviceCreateInfo.ppEnabledLayerNames = a_devInfo.vLayers.data();
-	deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(a_devInfo.vExtension.size());
-	deviceCreateInfo.ppEnabledExtensionNames = a_devInfo.vExtension.data();
+	deviceCreateInfo.enabledLayerCount = static_cast<uint32_t>(vLayers.size());
+	deviceCreateInfo.ppEnabledLayerNames = vLayers.data();
+	deviceCreateInfo.enabledExtensionCount = static_cast<uint32_t>(vExtension.size());
+	deviceCreateInfo.ppEnabledExtensionNames = vExtension.data();
 	deviceCreateInfo.pEnabledFeatures = &devFeatures;
 
 	VkDevice logical;
 	VK_CHECK(vkCreateDevice(a_devInfo.PhysicalDeviceHandle, &deviceCreateInfo, nullptr, &logical));
-	device = std::make_shared<VkEngineDevice>(m_vulkanInstance, a_devInfo.PhysicalDeviceHandle, logical);
+	device = VkEngineDevicePtr(new VkEngineDevice(m_vulkanInstance, a_devInfo.PhysicalDeviceHandle, logical, a_devInfo.Queues));
 	m_devices.emplace_back(device);
 	return device;
 }
@@ -293,9 +301,6 @@ bool VkApplication::findCompatibleDevices(const VKDeviceSettings& a_settings, st
 		vkEnumeratePhysicalDevices(m_vulkanInstance, &numDevices, vDevices.data());
 		int deviceIndex = 0;
 		VKDeviceInfo devInfo;
-		//devInfo.Flag = a_settings.DeviceFlag;
-		devInfo.vExtension = vStringToChar(a_settings.Extensions);
-		devInfo.vLayers = vStringToChar(a_settings.Layers);
 
 		for (const auto& device : vDevices)
 		{	
@@ -307,6 +312,8 @@ bool VkApplication::findCompatibleDevices(const VKDeviceSettings& a_settings, st
 			{
 				VkPhysicalDeviceProperties prop;
 				vkGetPhysicalDeviceProperties(device, &prop);
+				devInfo.DeviceType = prop.deviceType;
+				devInfo.DeviceName = prop.deviceName;
 
 				uint32_t queueFamilyCount;
 				vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);

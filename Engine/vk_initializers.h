@@ -43,6 +43,12 @@
 }
 
 /*@brief initialize create device*/
+[[nodiscard]] constexpr VkCommandPoolCreateInfo gen_cmdPoolCreateInfo()
+{
+	return VkCommandPoolCreateInfo{ .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO, .pNext = nullptr };
+}
+
+/*@brief initialize create device*/
 [[nodiscard]] constexpr VkPhysicalDeviceFeatures init_physicalFeatures()
 {
 	return VkPhysicalDeviceFeatures{

@@ -53,6 +53,10 @@ struct VKQueueSettings
 
 	REFLECT_FLAG(VkQueueFlagBits)
 	VkQueueFlags QueueFlag = 0;
+
+    REFLECT_MEMBER
+    float Priority = 1.0f;
+
 private:
 	DECLARE_REFLECT_CLASS(VKQueueSettings)
 };

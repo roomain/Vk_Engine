@@ -14,72 +14,116 @@
 
 struct SDLApp
 {
-    const std::string appName = "EngineTester";
-    int windowWidth = 800;
-    int windowHeight = 600;
-    SDL_Window* window = nullptr;
+	const std::string appName = "EngineTester";
+	int windowWidth = 800;
+	int windowHeight = 600;
+	SDL_Window* window = nullptr;
 };
 
-void initializeSDL(SDLApp& application)
+bool initializeSDL(SDLApp& application)
 {
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
-    SDL_CHECK(SDL_Vulkan_LoadLibrary(nullptr))
-    application.window = SDL_CreateWindow(application.appName.c_str(),
-        application.windowWidth, application.windowHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN);
+	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
+	try
+	{
+		SDL_CHECK(SDL_Vulkan_LoadLibrary(nullptr))
+			application.window = SDL_CreateWindow(application.appName.c_str(),
+				application.windowWidth, application.windowHeight, SDL_WINDOW_RESIZABLE | SDL_WINDOW_VULKAN);
+	}
+	catch (const std::runtime_error& error)
+	{
+		std::cerr << error.what();
+		return false;
+	}
+	return true;
+}
 
+void applicationRun(SDLApp& a_sdlApp, std::unique_ptr<VkApplication>&& a_vkApp, VkEngineDevicePtr a_device)
+{
+	bool running = true;
+	while (running)
+	{
+		SDL_Event windowEvent;
+		while (SDL_PollEvent(&windowEvent))
+		{
+			switch (windowEvent.type)
+			{
+			case SDL_EVENT_WINDOW_RESIZED:
+				break;
+
+			case SDL_EVENT_QUIT:
+				running = false;
+				break;
+			}
+		}
+	}
 }
 
 int main()
 {
-    SDLApp sdlApp;
+	SDLApp sdlApp;
+	if (!initializeSDL(sdlApp))
+		return -1;
 
-    VulkanCapabilitiesDisplayer displayer;
-    VkApplication::displayInstanceCapabilities(displayer);
+	// display vulkan instance capabilities
+	VulkanCapabilitiesDisplayer displayer;
+	VkApplication::displayInstanceCapabilities(displayer);
 
-    RHIManager::instance().loadConfiguration("resources");
-    VKInstanceSettings settings;
-    //settings.ApplicationName = "Engine_test";
-    //settings.EngineName = "Engine";
-    //settings.AppVersion = 1;
-    //settings.Layers = {"VK_LAYER_KHRONOS_validation"};
-    //settings.Extensions = {"VK_KHR_surface", "VK_EXT_debug_utils"};
-    try
-    {
-        VkApplication app(settings);
-        app.displayDevicesCapabilities(displayer);
-        initializeSDL(sdlApp);
+	// loading engine resources
+	RHIManager::instance().loadConfiguration("resources");
 
-        VKDeviceSettings devSettings;
-        // todo
+	// create instance settings
+	VKInstanceSettings settings;
 
-        // create surface
-        VkSurfaceKHR surface;
-        SDL_Vulkan_CreateSurface(sdlApp.window, app.vulkanInstance(), nullptr, &surface);
+	// add SDL vulkan extension
+	Uint32 sdlExtCount = 0;
+	char const* const* sdlExt = SDL_Vulkan_GetInstanceExtensions(&sdlExtCount);
+	for (Uint32 extIndex = 0; extIndex < sdlExtCount; ++extIndex)
+		settings.Extensions.emplace_back(sdlExt[extIndex]);
 
-        bool running = true;
-        while (running)
-        {
-            SDL_Event windowEvent;
-            while (SDL_PollEvent(&windowEvent))
-            {
-                if (windowEvent.type == SDL_EVENT_QUIT)
-                {
-                    running = false;
-                    break;
-                }
-            }
-        }
+	// setup vulkan engine
+	std::unique_ptr<VkApplication> app;
+	VkEngineDevicePtr device;
+	try
+	{
+		// create engine application
+		app = std::make_unique<VkApplication>(settings);
 
-    }
-    catch (VkException& except)
-    {
-        std::cerr << except.message();
-    }
-    catch (std::runtime_error& except)
-    {
-        std::cerr << except.what();
-    }
-    return 0;
+		// display devices capabilities
+		app->displayDevicesCapabilities(displayer);
+
+		// find compatible devices for required settings
+		VKDeviceSettings devSettings;
+		std::vector<VKDeviceInfo> compatibleDev;
+		app->findCompatibleDevices(devSettings, compatibleDev);
+
+		if (!compatibleDev.empty())
+		{
+			device = app->createDevice(devSettings, compatibleDev[0]);
+		}
+		else
+		{
+			std::cerr << "No device found" << std::endl;
+		}
+
+	}
+	catch (VkException& except)
+	{
+		std::cerr << except.message();
+		return -1;
+	}
+
+	// vulkan surface creation callback
+	auto surfaceCallback = [&sdlApp](VkInstance a_instance, VkSurfaceKHR* a_surface)
+		{
+			SDL_Vulkan_CreateSurface(sdlApp.window, a_instance, nullptr, a_surface);
+		};
+
+	if (device)
+	{
+		applicationRun(sdlApp, std::move(app), device);
+	}
+
+	return 0;
 }
 
 // Exécuter le programme : Ctrl+F5 ou menu Déboguer > Exécuter sans débogage
