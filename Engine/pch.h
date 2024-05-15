@@ -9,5 +9,5 @@
 
 // ajouter les en-têtes à précompiler ici
 #include "framework.h"
-
+#include "vk_check.h"
 #endif //PCH_H

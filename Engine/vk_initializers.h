@@ -48,6 +48,12 @@
 	return VkCommandPoolCreateInfo{ .sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO, .pNext = nullptr };
 }
 
+
+[[nodiscard]] constexpr VkSwapchainCreateInfoKHR gen_swapChainCreateInfo()
+{
+	return VkSwapchainCreateInfoKHR{ .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR, .pNext = nullptr };
+}
+
 /*@brief initialize create device*/
 [[nodiscard]] constexpr VkPhysicalDeviceFeatures init_physicalFeatures()
 {

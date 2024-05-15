@@ -11,18 +11,37 @@
 
 using VkCreateSurface = std::function<void (VkInstance, VkSurfaceKHR*)>;
 
+
+struct VkSwapChainConf
+{
+	VkCreateSurface CreationCb;					/*!< surface creation callback*/
+	VkExtent2D Extent{ 0,0 };					/*!< current window extent*/
+	bool UseVSync = false;						/*!< use Vertical synchro*/
+	VkFormat ColorFormat = VK_FORMAT_UNDEFINED;	/*!< desired color format*/
+};
+
+class VkEngineDevice;
+
+using VkEngineDeviceWPtr = std::weak_ptr<VkEngineDevice>;
+using VkEngineDevicePtr = std::shared_ptr<VkEngineDevice>;
+
 class ENGINE_EXPORT VkSwapChain
 {
 protected:
-	VkInstance m_vulkanInstance = VK_NULL_HANDLE;	/*!< vulkan instance*/
 	VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;	/*!< vulkan swapchain*/
 	VkSurfaceKHR m_surface = VK_NULL_HANDLE;		/*!< vulkan surface*/
-	VkPhysicalDevice m_physical = VK_NULL_HANDLE;	/*!< physical device*/
-	VkCreateSurface m_createFun;					/*!< vullkan surface creation callback*/
+	VkEngineDeviceWPtr m_device;			/*!< associated device*/
 
-	VkSwapChain(const VkInstance a_vkInstance, const VkPhysicalDevice a_device, const VkCreateSurface& a_createFun);
+	VkCreateSurface m_createFun;					/*!< vullkan surface creation callback*/
+	bool m_useVSync = true;							/*!< use vsync*/
+
+	static VkCompositeAlphaFlagBitsKHR findBestCompisiteAlphaFlag(const VkSurfaceCapabilitiesKHR& surfCaps);
+	static void findBestColorFormat(const VkEngineDevicePtr& a_device, const VkSurfaceKHR& a_surface, VkFormat& a_colorFormat, VkColorSpaceKHR& a_colorSpace);
+	static VkPresentModeKHR findBestPresentMode(const VkEngineDevicePtr& a_device, const VkSurfaceKHR& a_surface, const bool a_useVSync);
+
+	VkSwapChain(const VkEngineDeviceWPtr& a_device, const VkSwapChainConf& a_configuration);
 public:
 	~VkSwapChain();
-	void update(const uint32_t a_width, const uint32_t a_height);
+	void update(const VkExtent2D& a_extent);
 };
 

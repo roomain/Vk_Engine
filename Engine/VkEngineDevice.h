@@ -49,6 +49,7 @@ struct VKDeviceInfo
 class ENGINE_EXPORT VkEngineDevice
 {
 	friend VkApplication;
+	friend VkSwapChain;
 
 protected:
 	VkInstance m_vulkanInstance = VK_NULL_HANDLE;	/*!< vulkan instance*/
@@ -69,7 +70,7 @@ public:
 	static bool checkDeviceLayers(VkPhysicalDevice a_device, const std::vector<std::string>& a_desiredLayers);
 	static bool checkDeviceExtension(VkPhysicalDevice a_device, const std::vector<std::string>& a_desiredExts);
 
-	std::shared_ptr<VkSwapChain> createSwapChain(/*todo*/);
+	std::shared_ptr<VkSwapChain> createSwapChain(const uint32_t a_width, const uint32_t a_height, const bool a_vSync);
 
 	// create command pool
 	bool createCommandPool(const VkQueueFlags a_Queueflag);

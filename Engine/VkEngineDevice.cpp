@@ -21,6 +21,13 @@ VkEngineDevice::~VkEngineDevice()
     vkDestroyDevice(m_device, nullptr);
 }
 
+std::shared_ptr<VkSwapChain> VkEngineDevice::createSwapChain(const uint32_t a_width, const uint32_t a_height, const bool a_vSync)
+{
+    std::shared_ptr<VkSwapChain> pSwapChain;
+    //todo
+    return pSwapChain;
+}
+
 bool VkEngineDevice::createCommandPool(const VkQueueFlags a_Queueflag)
 {
     if (auto iter = m_queueMap.find(a_Queueflag); iter != m_queueMap.cend())
