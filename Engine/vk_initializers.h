@@ -54,6 +54,49 @@
 	return VkSwapchainCreateInfoKHR{ .sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR, .pNext = nullptr };
 }
 
+[[nodiscard]] constexpr VkImageViewCreateInfo gen_imageViewCreateInfo(const VkFormat a_colorFormat, const VkImage a_image)
+{
+	return VkImageViewCreateInfo{
+		.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO,
+		.pNext = nullptr,
+		.flags = 0,
+		.image = a_image,
+		.viewType = VK_IMAGE_VIEW_TYPE_2D,
+		.format = a_colorFormat,
+		.components = {
+			VK_COMPONENT_SWIZZLE_R,
+			VK_COMPONENT_SWIZZLE_G,
+			VK_COMPONENT_SWIZZLE_B,
+			VK_COMPONENT_SWIZZLE_A
+		},
+		.subresourceRange {.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+		.baseMipLevel = 0,
+		.levelCount = 1,
+		.baseArrayLayer = 0,
+		.layerCount = 1
+		}
+	};
+}
+
+[[nodiscard]] constexpr VkPresentInfoKHR gen_presentInfo()
+{
+	return VkPresentInfoKHR{
+		.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR,
+		.pNext = nullptr
+	};
+}
+
+[[nodiscard]] constexpr VkCommandBufferAllocateInfo gen_allocCmdBufferInfo(const VkCommandPool a_commandPool, const VkCommandBufferLevel a_level, const uint32_t a_bufferCount)
+{
+	return VkCommandBufferAllocateInfo{
+		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		.pNext = nullptr,
+		.commandPool = a_commandPool,
+		.level = a_level,
+		.commandBufferCount = a_bufferCount
+	};
+}
+
 /*@brief initialize create device*/
 [[nodiscard]] constexpr VkPhysicalDeviceFeatures init_physicalFeatures()
 {

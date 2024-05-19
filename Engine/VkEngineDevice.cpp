@@ -2,18 +2,16 @@
 #include <ranges>
 #include <algorithm>
 #include "VkEngineDevice.h"
+#include "VkSwapChain.h"
+#include "VkEngineCommandQueue.h"
 #include "vk_check.h"
 #include "vk_parameters.h"
 #include "vk_initializers.h"
 
-VkEngineDevice::VkEngineDevice(const VkInstance a_vkInstanceHandle, const VkPhysicalDevice a_physical, const VkDevice a_logical, const QueueConfMap& a_queueInfo) :
+VkEngineDevice::VkEngineDevice(const VkInstance a_vkInstanceHandle, const VkPhysicalDevice a_physical, const VkDevice a_logical) :
     m_vulkanInstance{ a_vkInstanceHandle }, m_physical{ a_physical }, m_device{ a_logical }
 {
-    for (const auto& [flag, list] : a_queueInfo)
-    {
-        for (const auto& conf : list)
-            m_queueMap[flag].emplace_back(QueueInfo{ conf.QueueFamily, conf.QueueCount });
-    }
+    //
 }
 
 VkEngineDevice::~VkEngineDevice()
@@ -21,77 +19,16 @@ VkEngineDevice::~VkEngineDevice()
     vkDestroyDevice(m_device, nullptr);
 }
 
-std::shared_ptr<VkSwapChain> VkEngineDevice::createSwapChain(const uint32_t a_width, const uint32_t a_height, const bool a_vSync)
+std::shared_ptr<VkSwapChain> VkEngineDevice::createSwapChain(const VkSwapChainConf& a_configuration)
 {
-    std::shared_ptr<VkSwapChain> pSwapChain;
-    //todo
-    return pSwapChain;
+    // use new instead of std::make_shared because ctor is private
+   return std::shared_ptr<VkSwapChain>(new VkSwapChain(shared_from_this(), a_configuration));
 }
 
-bool VkEngineDevice::createCommandPool(const VkQueueFlags a_Queueflag)
+std::shared_ptr<VkEngineCommandQueue>  VkEngineDevice::createCommandQueue(const uint32_t a_familyIndex)const
 {
-    if (auto iter = m_queueMap.find(a_Queueflag); iter != m_queueMap.cend())
-    {
-        size_t CmdpoolCount = commandPoolCount(a_Queueflag);
-        for (const auto& queueInfo : iter->second)
-        {
-            if (CmdpoolCount == 0)
-            {
-                VkCommandPoolCreateInfo cmdPoolInfo = gen_cmdPoolCreateInfo();
-                cmdPoolInfo.queueFamilyIndex = queueInfo.QueueFamily;
-                cmdPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-                VkCommandPool cmdPool;
-                VK_CHECK(vkCreateCommandPool(m_device, &cmdPoolInfo, nullptr, &cmdPool));
-                m_cmdPools[a_Queueflag].emplace_back(cmdPool);
-                return true;
-            }
-            else
-            {
-                CmdpoolCount -= queueInfo.QueueCount;
-            }
-        }
-    }
-    return false;
-   
-}
-
-int VkEngineDevice::createCommandsPool(const VkQueueFlags a_Queueflag, const int a_numToCreate)
-{
-    if (auto iter = m_queueMap.find(a_Queueflag); iter != m_queueMap.cend())
-    {
-        int counter = 0;
-        size_t CmdpoolCount = commandPoolCount(a_Queueflag);
-        for (const auto& queueInfo : iter->second)
-        {
-            if (CmdpoolCount == 0 && counter < a_numToCreate)
-            {
-                VkCommandPoolCreateInfo cmdPoolInfo = gen_cmdPoolCreateInfo();
-                cmdPoolInfo.queueFamilyIndex = queueInfo.QueueFamily;
-                cmdPoolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
-                VkCommandPool cmdPool;
-                VK_CHECK(vkCreateCommandPool(m_device, &cmdPoolInfo, nullptr, &cmdPool));
-                m_cmdPools[a_Queueflag].emplace_back(cmdPool);
-                ++counter;
-
-                if (counter >= a_numToCreate)
-                    return counter;
-            }
-            else
-            {
-                CmdpoolCount -= queueInfo.QueueCount;
-            }
-        }
-    }
-    return 0;
-}
-
-size_t VkEngineDevice::commandPoolCount(const VkQueueFlags a_Queueflag) const
-{
-    if (auto iter = m_cmdPools.find(a_Queueflag); iter != m_cmdPools.cend())
-    {
-        return iter->second.size();
-    }
-    return 0;
+    // use new instead of std::make_shared because ctor is private
+    return std::shared_ptr<VkEngineCommandQueue> (new VkEngineCommandQueue(m_device, a_familyIndex));
 }
 
 void VkEngineDevice::waitForDeviceIdle()

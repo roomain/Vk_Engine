@@ -159,6 +159,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="VkApplication.h" />
     <ClInclude Include="VkEngineDevice.h" />
+    <ClInclude Include="VkEngineCommandQueue.h" />
     <ClInclude Include="VkSwapChain.h" />
     <ClInclude Include="vk_check.h" />
     <ClInclude Include="vk_engine_globals.h" />
@@ -179,6 +180,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="VkApplication.cpp" />
+    <ClCompile Include="VkEngineCommandQueue.cpp" />
     <ClCompile Include="VkEngineDevice.cpp" />
     <ClCompile Include="VkException.cpp" />
     <ClCompile Include="VkSwapChain.cpp" />

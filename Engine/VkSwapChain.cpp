@@ -13,8 +13,20 @@ VkSwapChain::~VkSwapChain()
 	auto pDevice = m_device.lock();
 	if (m_surface && pDevice)
 	{
+		realeaseSwapchain(pDevice, m_swapChain);
+
 		// release surface
 		vkDestroySurfaceKHR(pDevice->m_vulkanInstance, m_surface, nullptr);
+	}
+}
+
+void VkSwapChain::realeaseSwapchain(VkEngineDevicePtr a_device, VkSwapchainKHR& a_swapchain)
+{
+	if (a_swapchain != VK_NULL_HANDLE)
+	{
+		for(auto& buffer : m_bufferStack)
+			vkDestroyImageView(a_device->m_device, buffer.view, nullptr);
+		vkDestroySwapchainKHR(a_device->m_device, a_swapchain, nullptr);
 	}
 }
 
@@ -192,7 +204,44 @@ void VkSwapChain::update(const VkExtent2D& a_extent)
 			swapchainCI.imageUsage |= VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 		}
 
-		VK_CHECK(vkCreateSwapchainKHR(pDevice->m_device, &swapchainCI, nullptr, m_swapChain));
-		// todo
+		VK_CHECK(vkCreateSwapchainKHR(pDevice->m_device, &swapchainCI, nullptr, &m_swapChain));
+
+		// release old swapchain
+		realeaseSwapchain(pDevice, oldSwapchain);
+
+		// get swapchain images
+		uint32_t imageCount = 0;
+		VK_CHECK(vkGetSwapchainImagesKHR(pDevice->m_device, m_swapChain, &imageCount, nullptr));
+		std::vector<VkImage> imageStack;
+		VK_CHECK(vkGetSwapchainImagesKHR(pDevice->m_device, m_swapChain, &imageCount, imageStack.data()));
+		m_bufferStack.resize(imageCount);
+		int bufferIndex = 0;
+		for (auto image : imageStack)
+		{
+			VkImageViewCreateInfo info = gen_imageViewCreateInfo(colorFormat, image);
+			m_bufferStack[bufferIndex].image = image;
+			VK_CHECK(vkCreateImageView(pDevice->m_device, &info, nullptr, &m_bufferStack[bufferIndex].view));
+			++bufferIndex;
+		}
 	}
+}
+
+void VkSwapChain::aquireNextImage(VkSemaphore a_presentCompleteSemaphore, uint32_t& a_imageIndex, VkFence a_fence)const
+{
+	VK_CHECK(vkAcquireNextImageKHR(m_device.lock()->m_device, m_swapChain, UINT64_MAX, a_presentCompleteSemaphore, a_fence, &a_imageIndex));
+}
+
+VkResult VkSwapChain::queuePresentImage(VkQueue a_queue, const uint32_t a_imageIndex, VkSemaphore a_semaphore)const
+{
+	VkPresentInfoKHR presentInfo = gen_presentInfo();
+	presentInfo.swapchainCount = 1;
+	presentInfo.pSwapchains = &m_swapChain;
+	presentInfo.pImageIndices = &a_imageIndex;
+	// Check if a wait semaphore has been specified to wait for before presenting the image
+	if (a_semaphore != VK_NULL_HANDLE)
+	{
+		presentInfo.pWaitSemaphores = &a_semaphore;
+		presentInfo.waitSemaphoreCount = 1;
+	}
+	return vkQueuePresentKHR(a_queue, &presentInfo);
 }

@@ -21,14 +21,11 @@ void VkApplication::createVulkanInstance(VkApplication* const a_this, const VKIn
 		VkInstanceCreateInfo instanceInfo = gen_instanceCreateInfo();
 		instanceInfo.pApplicationInfo = &appInfo;
 
-		std::vector<const char*> vLayers = vStringToChar(a_setting.Layers);		
-		//vLayers.emplace_back(VK_EXT_VALIDATION_FLAGS_EXTENSION_NAME);
+		std::vector<const char*> vLayers = vStringToChar(a_setting.Layers);
 		instanceInfo.ppEnabledLayerNames = vLayers.data();
 		instanceInfo.enabledLayerCount = static_cast<uint32_t>(vLayers.size());
 
 		std::vector<const char*> vExtension = vStringToChar(a_setting.Extensions);
-		//vExtension.emplace_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
-		//vExtension.emplace_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 		instanceInfo.ppEnabledExtensionNames = vExtension.data();
 		instanceInfo.enabledExtensionCount = static_cast<uint32_t>(vExtension.size());
 		
@@ -50,7 +47,7 @@ bool VkApplication::findQueue(const std::vector<VkQueueFamilyProperties>& a_queu
 				std::vector<float> vPriority(numQueue);
 				for (auto& priority : vPriority)
 					priority = queueSettings.Priority;
-				a_devInfo.Queues[queueSettings.QueueFlag].emplace_back(QueueConfig{ queueIndex, numQueue, std::move(vPriority)});
+				a_devInfo.Queues[queueSettings.QueueFlag].emplace_back(QueueConfig{queueIndex, numQueue, std::move(vPriority)});
 				iCounter -= numQueue;
 				if (iCounter == 0)
 					break;
@@ -192,9 +189,8 @@ VkEngineDevicePtr VkApplication::createDevice(const VKDeviceSettings& a_settings
 
 	VkDevice logical;
 	VK_CHECK(vkCreateDevice(a_devInfo.PhysicalDeviceHandle, &deviceCreateInfo, nullptr, &logical));
-	device = VkEngineDevicePtr(new VkEngineDevice(m_vulkanInstance, a_devInfo.PhysicalDeviceHandle, logical, a_devInfo.Queues));
-	m_devices.emplace_back(device);
-	return device;
+	// use new instead of std::make_shared because ctor is private
+	return m_devices.emplace_back(new VkEngineDevice(m_vulkanInstance, a_devInfo.PhysicalDeviceHandle, logical));
 }
 
 void VkApplication::displayInstanceCapabilities(IRHICapabilitiesDisplayer& a_displayer)
