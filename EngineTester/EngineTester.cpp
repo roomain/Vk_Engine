@@ -1,12 +1,14 @@
 // EngineTester.cpp : Ce fichier contient la fonction 'main'. L'exécution du programme commence et se termine à cet endroit.
 //
+#include <iostream>
 #include "VulkanCapabilitiesDisplayer.h"
 #include "VkApplication.h"
 #include "VkException.h"
 #include "vk_parameters.h"
 #include "RHIManager.h"
-#include <iostream>
 #include "macros.h"
+#include "VkSwapChain.h"
+#include "VkEngineCommandQueue.h"
 
 
 #include <SDL3/SDL.h>
@@ -37,17 +39,26 @@ bool initializeSDL(SDLApp& application)
 	return true;
 }
 
-void applicationRun(SDLApp& a_sdlApp, std::unique_ptr<VkApplication>&& a_vkApp, VkEngineDevicePtr a_device)
+void update(SDLApp& a_sdlApp, VkEngineDevicePtr a_device, VkSwapChainPtr a_swapchain)
+{
+	a_swapchain->update(VkExtent2D{ static_cast<uint32_t>(a_sdlApp.windowWidth), static_cast<uint32_t>(a_sdlApp.windowHeight) });
+	//
+}
+
+void applicationRun(SDLApp& a_sdlApp, std::unique_ptr<VkApplication>&& a_vkApp, VkEngineDevicePtr a_device, VkSwapChainPtr a_swapchain)
 {
 	bool running = true;
 	while (running)
 	{
-		SDL_Event windowEvent;
-		while (SDL_PollEvent(&windowEvent))
+		SDL_Event appEvent;
+		while (SDL_PollEvent(&appEvent))
 		{
-			switch (windowEvent.type)
+			switch (appEvent.type)
 			{
 			case SDL_EVENT_WINDOW_RESIZED:
+				a_sdlApp.windowWidth = appEvent.window.data1;
+				a_sdlApp.windowHeight = appEvent.window.data2;
+				update(a_sdlApp, a_device, a_swapchain);
 				break;
 
 			case SDL_EVENT_QUIT:
@@ -83,6 +94,10 @@ int main()
 	// setup vulkan engine
 	std::unique_ptr<VkApplication> app;
 	VkEngineDevicePtr device;
+	VkSwapChainPtr swapChain;
+	VkEngineCommandQueuePtr commandQueue;
+	std::vector<uint32_t> vQueueFamilies;
+
 	try
 	{
 		// create engine application
@@ -99,6 +114,27 @@ int main()
 		if (!compatibleDev.empty())
 		{
 			device = app->createDevice(devSettings, compatibleDev[0]);
+			VkSwapChainConf confSwpachain
+			{
+				.CreationCb = [&sdlApp](VkInstance a_instance, VkSurfaceKHR* a_surface) {SDL_Vulkan_CreateSurface(sdlApp.window, a_instance, nullptr, a_surface); },
+				.Extent = VkExtent2D{static_cast<uint32_t>(sdlApp.windowWidth), static_cast<uint32_t>(sdlApp.windowHeight)},
+				.UseVSync = true,
+				.ColorFormat = VK_FORMAT_UNDEFINED
+			};
+			swapChain = device->createSwapChain(confSwpachain);
+
+			getQueueFamilies(compatibleDev[0], VK_QUEUE_GRAPHICS_BIT, vQueueFamilies);
+			
+			if (!vQueueFamilies.empty())
+			{
+				commandQueue = device->createCommandQueue(vQueueFamilies[0]);
+				commandQueue->createCommandPool();
+				commandQueue->createCommandBuffer(swapChain->imageStackCount());
+			}
+			else
+			{
+				std::cerr << "No Queue found" << std::endl;
+			}
 		}
 		else
 		{
@@ -112,15 +148,9 @@ int main()
 		return -1;
 	}
 
-	// vulkan surface creation callback
-	auto surfaceCallback = [&sdlApp](VkInstance a_instance, VkSurfaceKHR* a_surface)
-		{
-			SDL_Vulkan_CreateSurface(sdlApp.window, a_instance, nullptr, a_surface);
-		};
-
 	if (device)
 	{
-		applicationRun(sdlApp, std::move(app), device);
+		applicationRun(sdlApp, std::move(app), device, swapChain);
 	}
 
 	return 0;

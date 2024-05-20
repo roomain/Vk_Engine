@@ -41,6 +41,9 @@ struct VKDeviceInfo
 	QueueConfMap Queues;												/*!< compatible queues per flag*/
 };
 
+/*@brief get queue having flag*/
+void ENGINE_EXPORT getQueueFamilies(const VKDeviceInfo& a_info, const VkQueueFlags a_flag, std::vector<uint32_t>& a_vFamily);
+
 struct VkSwapChainConf;
 
 /*@brief vulkan device*/

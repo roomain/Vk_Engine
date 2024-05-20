@@ -5,7 +5,7 @@
 
 VkSwapChain::VkSwapChain(const VkEngineDeviceWPtr& a_device, const VkSwapChainConf& a_configuration) : m_device{ a_device }, m_createFun { a_configuration.CreationCb }, m_useVSync{ a_configuration.UseVSync }
 {
-	//
+	update(a_configuration.Extent);
 }
 
 VkSwapChain::~VkSwapChain()
@@ -212,7 +212,7 @@ void VkSwapChain::update(const VkExtent2D& a_extent)
 		// get swapchain images
 		uint32_t imageCount = 0;
 		VK_CHECK(vkGetSwapchainImagesKHR(pDevice->m_device, m_swapChain, &imageCount, nullptr));
-		std::vector<VkImage> imageStack;
+		std::vector<VkImage> imageStack(imageCount);
 		VK_CHECK(vkGetSwapchainImagesKHR(pDevice->m_device, m_swapChain, &imageCount, imageStack.data()));
 		m_bufferStack.resize(imageCount);
 		int bufferIndex = 0;

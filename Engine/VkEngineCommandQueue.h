@@ -4,6 +4,7 @@
 * @date 19 / 05 / 2024
 * @author Roomain
 ************************************************/
+#include <memory>
 #include <vulkan/vulkan.hpp>
 #include "vk_engine_globals.h"
 
@@ -32,5 +33,7 @@ public:
 	// @return fist index of the new commansd buffers
 	uint32_t createCommandBuffer(const uint32_t a_numCmdBuffer);
 };
+
+using VkEngineCommandQueuePtr = std::shared_ptr<VkEngineCommandQueue>;
 
 #pragma warning(pop)

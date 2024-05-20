@@ -8,6 +8,18 @@
 #include "vk_parameters.h"
 #include "vk_initializers.h"
 
+void getQueueFamilies(const VKDeviceInfo& a_info, const VkQueueFlags a_flag, std::vector<uint32_t>& a_vFamily)
+{
+    for (const auto& [flag, queuelist] : a_info.Queues)
+    {
+        if ((flag & a_flag) == a_flag)
+        {
+            for (const auto& queue : queuelist)
+                a_vFamily.emplace_back(queue.QueueFamily);
+        }
+    }
+}
+
 VkEngineDevice::VkEngineDevice(const VkInstance a_vkInstanceHandle, const VkPhysicalDevice a_physical, const VkDevice a_logical) :
     m_vulkanInstance{ a_vkInstanceHandle }, m_physical{ a_physical }, m_device{ a_logical }
 {

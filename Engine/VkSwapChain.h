@@ -71,5 +71,6 @@ public:
 	uint32_t imageStackCount() const noexcept { return static_cast<uint32_t>(m_bufferStack.size()); }
 };
 
+using VkSwapChainPtr = std::shared_ptr<VkSwapChain>;
 
 #pragma warning(pop)
