@@ -2,10 +2,7 @@
 #include <ranges>
 #include "vk_struct_display.h"
 #include "VkApplication.h"
-#include "vk_initializers.h"
-#include "vk_check.h"
 #include "IRHICapabilitiesDisplayer.h"
-#include "vk_parameters.h"
 #include "vk_enumToString.h"
 #include "stringUtils.h"
 
@@ -33,29 +30,37 @@ void VkApplication::createVulkanInstance(VkApplication* const a_this, const VKIn
 	}
 }
 
-bool VkApplication::findQueue(const std::vector<VkQueueFamilyProperties>& a_queueFamilies, const VKDeviceSettings& a_settings, VKDeviceInfo& a_devInfo)
+bool VkApplication::getCompatibleQueues(std::vector<VkQueueFamilyProperties>& a_queueFamilies,
+	const std::vector<VKQueueSettings>& a_vSettings, QueueConfMap& a_confMap)
 {
-	for (const auto& queueSettings : a_settings.QueuesSettings)
+	// for each queue settings
+	for (const auto& queueSettings : a_vSettings)
 	{
-		uint32_t iCounter = queueSettings.Count;
-		uint32_t queueIndex = 0;
-		for (const auto& properties : a_queueFamilies)
+		uint32_t iNumDesired = queueSettings.Count;
+		uint32_t queueFamilyIndex = 0;
+
+		// for each family filtered property
+		for (auto& familyProp : a_queueFamilies)
 		{
-			if ((properties.queueFlags & queueSettings.QueueFlag) == queueSettings.QueueFlag)
+			// filter queue property
+			if (((familyProp.queueFlags & queueSettings.QueueFlag) == queueSettings.QueueFlag)
+				&& (familyProp.queueCount > 0))
 			{
-				uint32_t numQueue = std::min(properties.queueCount, iCounter);
-				std::vector<float> vPriority(numQueue);
-				for (auto& priority : vPriority)
-					priority = queueSettings.Priority;
-				a_devInfo.Queues[queueSettings.QueueFlag].emplace_back(QueueConfig{queueIndex, numQueue, std::move(vPriority)});
-				iCounter -= numQueue;
-				if (iCounter == 0)
+				uint32_t usedQueueCount = std::min(familyProp.queueCount, iNumDesired);
+				std::vector<float> vPriority(usedQueueCount, queueSettings.Priority);
+				a_confMap[queueSettings.QueueFlag].emplace_back(
+					QueueConfig{queueFamilyIndex, usedQueueCount, std::move(vPriority) });
+
+				familyProp.queueCount -= usedQueueCount;
+				iNumDesired -= usedQueueCount;
+
+				if (iNumDesired == 0)
 					break;
 			}
-			++queueIndex;
+			queueFamilyIndex++;
 		}
 
-		if (iCounter > 0)
+		if (iNumDesired > 0)
 			return false;
 	}
 	return true;
@@ -190,7 +195,8 @@ VkEngineDevicePtr VkApplication::createDevice(const VKDeviceSettings& a_settings
 	VkDevice logical;
 	VK_CHECK(vkCreateDevice(a_devInfo.PhysicalDeviceHandle, &deviceCreateInfo, nullptr, &logical));
 	// use new instead of std::make_shared because ctor is private
-	return m_devices.emplace_back(new VkEngineDevice(m_vulkanInstance, a_devInfo.PhysicalDeviceHandle, logical));
+	return m_devices.emplace_back(new VkEngineDevice(m_vulkanInstance, a_devInfo.PhysicalDeviceHandle, 
+		logical, a_devInfo.Queues));
 }
 
 void VkApplication::displayInstanceCapabilities(IRHICapabilitiesDisplayer& a_displayer)
@@ -289,39 +295,38 @@ void VkApplication::displayDevicesCapabilities(IRHICapabilitiesDisplayer& a_disp
 
 bool VkApplication::findCompatibleDevices(const VKDeviceSettings& a_settings, std::vector<VKDeviceInfo>& a_vCompatibeDevices)const
 {
-	if (m_vulkanInstance != VK_NULL_HANDLE)
-	{
-		uint32_t numDevices;
-		vkEnumeratePhysicalDevices(m_vulkanInstance, &numDevices, nullptr);
-		std::vector<VkPhysicalDevice> vDevices{ numDevices };
-		vkEnumeratePhysicalDevices(m_vulkanInstance, &numDevices, vDevices.data());
-		int deviceIndex = 0;
-		VKDeviceInfo devInfo;
+	if(m_vulkanInstance == VK_NULL_HANDLE)
+		return false;
+		
+	uint32_t numDevices = 0;
+	vkEnumeratePhysicalDevices(m_vulkanInstance, &numDevices, nullptr);
+	std::vector<VkPhysicalDevice> vDevices{ numDevices };
+	vkEnumeratePhysicalDevices(m_vulkanInstance, &numDevices, vDevices.data());
+	int deviceIndex = 0;
+	VKDeviceInfo devInfo;
 
-		for (const auto& device : vDevices)
-		{	
-			// init device info
-			devInfo.Queues.clear();			
-			devInfo.PhysicalDeviceHandle = device;
-			if (VkEngineDevice::checkDeviceLayers(device, a_settings.Layers) &&
-				VkEngineDevice::checkDeviceExtension(device, a_settings.Extensions))
-			{
-				VkPhysicalDeviceProperties prop;
-				vkGetPhysicalDeviceProperties(device, &prop);
-				devInfo.DeviceType = prop.deviceType;
-				devInfo.DeviceName = prop.deviceName;
+	for (const auto& device : vDevices)
+	{	
+		// init device info
+		devInfo.Queues.clear();			
+		devInfo.PhysicalDeviceHandle = device;
+		if (VkEngineDevice::checkDeviceLayers(device, a_settings.Layers) &&
+			VkEngineDevice::checkDeviceExtension(device, a_settings.Extensions))
+		{
+			VkPhysicalDeviceProperties prop;
+			vkGetPhysicalDeviceProperties(device, &prop);
+			devInfo.DeviceType = prop.deviceType;
+			devInfo.DeviceName = prop.deviceName;
 
-				uint32_t queueFamilyCount;
-				vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-				std::vector<VkQueueFamilyProperties> queueFamilyProperties(queueFamilyCount);
-				vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilyProperties.data());
+			uint32_t queueFamilyCount;
+			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+			std::vector<VkQueueFamilyProperties> queueFamilyProperties(queueFamilyCount);
+			vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilyProperties.data());
 
-				if (VkApplication::findQueue(queueFamilyProperties, a_settings, devInfo))
-					a_vCompatibeDevices.emplace_back(std::move(devInfo));
-			}
-			deviceIndex++;
+			if (VkApplication::getCompatibleQueues(queueFamilyProperties, a_settings.QueuesSettings, devInfo.Queues))
+				a_vCompatibeDevices.emplace_back(std::move(devInfo));
 		}
-		return true;
+		deviceIndex++;
 	}
-	return false;
+	return true;
 }

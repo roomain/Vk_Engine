@@ -10,4 +10,7 @@
 // ajouter les en-têtes à précompiler ici
 #include "framework.h"
 #include "vk_check.h"
+#include "vk_initializers.h"
+#include "vk_deviceInfo.h"
+#include "vk_parameters.h"
 #endif //PCH_H

@@ -69,6 +69,12 @@
     <ClInclude Include="VkEngineCommandQueue.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
+    <ClInclude Include="vk_deviceInfo.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="VkQueueStack.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -96,6 +102,9 @@
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="VkEngineCommandQueue.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="VkQueueStack.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>

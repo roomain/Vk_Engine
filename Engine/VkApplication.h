@@ -10,6 +10,7 @@
 #include <unordered_map>
 #include <vulkan/vulkan.hpp>
 #include "VkEngineDevice.h"
+#include "vk_deviceInfo.h"
 #include "vk_engine_globals.h"
 
 
@@ -18,6 +19,7 @@
 
 class IRHICapabilitiesDisplayer;
 struct VKInstanceSettings;
+struct VKQueueSettings;
 
 
 
@@ -27,8 +29,8 @@ private:
 	VkInstance m_vulkanInstance = VK_NULL_HANDLE;	/*!< vulkan instance*/
 	std::vector<VkEngineDevicePtr> m_devices;		/*!< engine device list*/
 	static void createVulkanInstance(VkApplication* const a_this, const VKInstanceSettings& a_setting);
-	static bool findQueue(const std::vector<VkQueueFamilyProperties>& a_queueFamilies, const VKDeviceSettings& a_settings, VKDeviceInfo& a_devInfo);
-	
+	static bool getCompatibleQueues(std::vector<VkQueueFamilyProperties>& a_queueFamilies,
+		const std::vector<VKQueueSettings>& a_vSettings, QueueConfMap& a_confMap);
 public:
 	explicit VkApplication(const VKInstanceSettings& a_settings);
 	VkApplication();

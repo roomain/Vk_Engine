@@ -160,8 +160,10 @@
     <ClInclude Include="VkApplication.h" />
     <ClInclude Include="VkEngineDevice.h" />
     <ClInclude Include="VkEngineCommandQueue.h" />
+    <ClInclude Include="VkQueueStack.h" />
     <ClInclude Include="VkSwapChain.h" />
     <ClInclude Include="vk_check.h" />
+    <ClInclude Include="vk_deviceInfo.h" />
     <ClInclude Include="vk_engine_globals.h" />
     <ClInclude Include="vk_enumToString.h" />
     <ClInclude Include="VkException.h" />
@@ -183,6 +185,7 @@
     <ClCompile Include="VkEngineCommandQueue.cpp" />
     <ClCompile Include="VkEngineDevice.cpp" />
     <ClCompile Include="VkException.cpp" />
+    <ClCompile Include="VkQueueStack.cpp" />
     <ClCompile Include="VkSwapChain.cpp" />
     <ClCompile Include="vk_parameters.cpp" />
     <ClCompile Include="vk_struct_display.cpp" />

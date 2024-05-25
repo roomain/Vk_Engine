@@ -15,9 +15,10 @@
 /*@brief Queue management*/
 class ENGINE_EXPORT VkEngineCommandQueue
 {
-	friend class VkEngineDevice;
+	friend class VkQueueStack;
 
 private:
+	VkQueue m_queue = VK_NULL_HANDLE;				/*!< device queue*/
 	VkDevice m_device = VK_NULL_HANDLE;				/*!< vulkan logical device*/
 	uint32_t m_queueFamily;							/*!< index of queue family*/
 	VkCommandPool m_cmdPool = VK_NULL_HANDLE;		/*!< command pool*/

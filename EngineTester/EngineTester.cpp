@@ -9,7 +9,7 @@
 #include "macros.h"
 #include "VkSwapChain.h"
 #include "VkEngineCommandQueue.h"
-
+#include "vk_deviceInfo.h"
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
@@ -123,7 +123,7 @@ int main()
 			};
 			swapChain = device->createSwapChain(confSwpachain);
 
-			getQueueFamilies(compatibleDev[0], VK_QUEUE_GRAPHICS_BIT, vQueueFamilies);
+			VkEngineDevice::getQueueFamilies(compatibleDev[0], VK_QUEUE_GRAPHICS_BIT, vQueueFamilies);
 			
 			if (!vQueueFamilies.empty())
 			{

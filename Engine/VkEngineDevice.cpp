@@ -4,11 +4,8 @@
 #include "VkEngineDevice.h"
 #include "VkSwapChain.h"
 #include "VkEngineCommandQueue.h"
-#include "vk_check.h"
-#include "vk_parameters.h"
-#include "vk_initializers.h"
 
-void getQueueFamilies(const VKDeviceInfo& a_info, const VkQueueFlags a_flag, std::vector<uint32_t>& a_vFamily)
+void VkEngineDevice::getQueueFamilies(const VKDeviceInfo& a_info, const VkQueueFlags a_flag, std::vector<uint32_t>& a_vFamily)
 {
     for (const auto& [flag, queuelist] : a_info.Queues)
     {
@@ -20,10 +17,11 @@ void getQueueFamilies(const VKDeviceInfo& a_info, const VkQueueFlags a_flag, std
     }
 }
 
-VkEngineDevice::VkEngineDevice(const VkInstance a_vkInstanceHandle, const VkPhysicalDevice a_physical, const VkDevice a_logical) :
+VkEngineDevice::VkEngineDevice(const VkInstance a_vkInstanceHandle, const VkPhysicalDevice a_physical, 
+    const VkDevice a_logical, const QueueConfMap& a_queueConf) :
     m_vulkanInstance{ a_vkInstanceHandle }, m_physical{ a_physical }, m_device{ a_logical }
 {
-    //
+   // todo
 }
 
 VkEngineDevice::~VkEngineDevice()
@@ -39,8 +37,9 @@ std::shared_ptr<VkSwapChain> VkEngineDevice::createSwapChain(const VkSwapChainCo
 
 std::shared_ptr<VkEngineCommandQueue>  VkEngineDevice::createCommandQueue(const uint32_t a_familyIndex)const
 {
-    // use new instead of std::make_shared because ctor is private
-    return std::shared_ptr<VkEngineCommandQueue> (new VkEngineCommandQueue(m_device, a_familyIndex));
+    if(const auto iter = m_Queues.find(a_familyIndex); iter != m_Queues.cend())
+        return m_Queues.at(a_familyIndex).createCommandQueue(m_device, a_familyIndex);
+    return nullptr;
 }
 
 void VkEngineDevice::waitForDeviceIdle()
