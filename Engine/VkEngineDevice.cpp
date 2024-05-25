@@ -21,7 +21,20 @@ VkEngineDevice::VkEngineDevice(const VkInstance a_vkInstanceHandle, const VkPhys
     const VkDevice a_logical, const QueueConfMap& a_queueConf) :
     m_vulkanInstance{ a_vkInstanceHandle }, m_physical{ a_physical }, m_device{ a_logical }
 {
-   // todo
+    for (const auto& [flag, list] : a_queueConf)
+    {
+        for (const auto& queueConf : list)
+        {
+            if (const auto iter = m_Queues.find(queueConf.QueueFamily); iter != m_Queues.cend())
+            {
+                iter->second.addQueue(queueConf.QueueCount);
+            }
+            else
+            {
+                m_Queues.emplace(queueConf.QueueFamily, queueConf.QueueCount);
+            }
+        }
+    }
 }
 
 VkEngineDevice::~VkEngineDevice()

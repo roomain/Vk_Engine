@@ -7,7 +7,6 @@
 #include <vector>
 #include <unordered_map>
 #include <vulkan/vulkan.hpp>
-#include "vk_engine_globals.h"
 
 
 #pragma warning(push)

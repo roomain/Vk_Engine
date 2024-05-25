@@ -8,6 +8,7 @@
 #include <vulkan/vulkan.hpp>
 #include <unordered_map>
 #include "VkQueueStack.h"
+#include "vk_deviceInfo.h"
 #include "vk_engine_globals.h"
 
 #pragma warning(push)

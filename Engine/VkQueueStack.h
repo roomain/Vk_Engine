@@ -21,6 +21,7 @@ public:
 	VkQueueStack() = delete;
 	explicit VkQueueStack(const unsigned int a_queueCount);
 	~VkQueueStack() = default;
+	void addQueue(const uint32_t a_appendCount);
 	bool isFull()const noexcept;
 	VkEngineCommandQueuePtr createCommandQueue(const VkDevice a_device, const uint32_t a_familyIndex);
 };
