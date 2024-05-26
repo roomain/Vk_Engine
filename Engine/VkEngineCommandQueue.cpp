@@ -32,9 +32,9 @@ void VkEngineCommandQueue::cleanup()
     }
 }
 
-VkEngineCommandQueue::VkEngineCommandQueue(VkDevice a_device, const uint32_t a_family) : m_device{ a_device }, m_queueFamily{ a_family }
+VkEngineCommandQueue::VkEngineCommandQueue(VkDevice a_device, const uint32_t a_family, const uint32_t a_queueIndex) : m_device{ a_device }, m_queueFamily{ a_family }
 {
-    //vkGetDeviceQueue(a_device, a_family, queueIndex, &m_queue);
+    vkGetDeviceQueue(a_device, a_family, a_queueIndex, &m_queue);
 }
 
 VkEngineCommandQueue::~VkEngineCommandQueue()

@@ -10,7 +10,7 @@ VkQueueStack::VkQueueStack(const unsigned int a_queueCount) : m_queueStack(a_que
 
 bool VkQueueStack::isFull()const noexcept
 {
-	return !std::any_of(m_queueStack.cbegin(), m_queueStack.cend(), 
+	return !std::ranges::any_of(m_queueStack.cbegin(), m_queueStack.cend(), 
 		[](const auto& cmdQueue) {return cmdQueue.expired(); });
 }
 
@@ -21,15 +21,17 @@ void VkQueueStack::addQueue(const uint32_t a_appendCount)
 
 VkEngineCommandQueuePtr VkQueueStack::createCommandQueue(const VkDevice a_device, const uint32_t a_familyIndex)
 {
+	uint32_t queueIndex = 0;
 	for (auto& cmdQueue : m_queueStack)
 	{
 		if (cmdQueue.expired())
 		{
 			// use new instead of std::make_shared because ctor is private
-			std::shared_ptr<VkEngineCommandQueue> newQueue(new VkEngineCommandQueue(a_device, a_familyIndex));
+			std::shared_ptr<VkEngineCommandQueue> newQueue(new VkEngineCommandQueue(a_device, a_familyIndex, queueIndex));
 			cmdQueue = newQueue;
 			return newQueue;
 		}
+		++queueIndex;
 	}
 	return VkEngineCommandQueuePtr();
 }

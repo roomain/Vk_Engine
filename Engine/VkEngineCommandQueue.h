@@ -20,18 +20,18 @@ class ENGINE_EXPORT VkEngineCommandQueue
 private:
 	VkQueue m_queue = VK_NULL_HANDLE;				/*!< device queue*/
 	VkDevice m_device = VK_NULL_HANDLE;				/*!< vulkan logical device*/
-	uint32_t m_queueFamily;							/*!< index of queue family*/
 	VkCommandPool m_cmdPool = VK_NULL_HANDLE;		/*!< command pool*/
+	uint32_t m_queueFamily;							/*!< index of queue family*/
 	std::vector<VkCommandBuffer> m_cmdCmdBuffers;	/*!< command buffers*/
 
-	explicit VkEngineCommandQueue(VkDevice a_device, const uint32_t a_family);
+	explicit VkEngineCommandQueue(VkDevice a_device, const uint32_t a_family, const uint32_t a_queueIndex);
 	void cleanup();
 
 public:
 	VkEngineCommandQueue() = delete;
 	~VkEngineCommandQueue();
 	void createCommandPool();
-	// @return fist index of the new commansd buffers
+	// @return fist index of the new command buffers
 	uint32_t createCommandBuffer(const uint32_t a_numCmdBuffer);
 };
 
