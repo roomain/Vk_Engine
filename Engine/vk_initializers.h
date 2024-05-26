@@ -158,3 +158,13 @@
 	.inheritedQueries = false
 	};
 }
+
+[[nodiscard]] constexpr VkFenceCreateInfo init_fence(const VkFenceCreateFlags a_flags)
+{
+	return VkFenceCreateInfo{.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO, .pNext = nullptr, .flags = a_flags };
+}
+
+[[nodiscard]] constexpr  VkSemaphoreCreateInfo init_semaphore(const VkEventCreateFlags a_flag)
+{
+	return VkSemaphoreCreateInfo{ .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO, .pNext = nullptr, .flags = a_flag};
+}

@@ -160,6 +160,8 @@
     <ClInclude Include="VkApplication.h" />
     <ClInclude Include="VkEngineDevice.h" />
     <ClInclude Include="VkEngineCommandQueue.h" />
+    <ClInclude Include="VkEngineImage.h" />
+    <ClInclude Include="VkEngineObject.h" />
     <ClInclude Include="VkQueueStack.h" />
     <ClInclude Include="VkSwapChain.h" />
     <ClInclude Include="vk_check.h" />
@@ -184,6 +186,7 @@
     <ClCompile Include="VkApplication.cpp" />
     <ClCompile Include="VkEngineCommandQueue.cpp" />
     <ClCompile Include="VkEngineDevice.cpp" />
+    <ClCompile Include="VkEngineObject.cpp" />
     <ClCompile Include="VkException.cpp" />
     <ClCompile Include="VkQueueStack.cpp" />
     <ClCompile Include="VkSwapChain.cpp" />

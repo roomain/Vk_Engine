@@ -18,8 +18,8 @@ void VkEngineDevice::getQueueFamilies(const VKDeviceInfo& a_info, const VkQueueF
 }
 
 VkEngineDevice::VkEngineDevice(const VkInstance a_vkInstanceHandle, const VkPhysicalDevice a_physical, 
-    const VkDevice a_logical, const QueueConfMap& a_queueConf) :
-    m_vulkanInstance{ a_vkInstanceHandle }, m_physical{ a_physical }, m_device{ a_logical }
+    const VkDevice a_logical, const QueueConfMap& a_queueConf) : VkEngineObject{ a_vkInstanceHandle, a_logical }
+    , m_physical{ a_physical }
 {
     for (const auto& [flag, list] : a_queueConf)
     {
