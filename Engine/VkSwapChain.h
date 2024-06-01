@@ -6,7 +6,6 @@
 ************************************************/
 #include <functional>
 #include <vulkan/vulkan.hpp>
-#include "VkEngineDevice.h"
 #include "vk_engine_globals.h"
 
 #pragma warning(push)

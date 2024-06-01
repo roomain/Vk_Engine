@@ -17,10 +17,12 @@ protected:
 
 public:
 	VkEngineObject() = delete;
-	VkEngineObject(const VkInstance a_vkInstanceHandle, const VkDevice a_device);
+	explicit VkEngineObject(const VkInstance a_vkInstanceHandle, const VkDevice a_device);
 	virtual ~VkEngineObject() = default;
-	VkFence createFence()const;
-	std::vector<VkFence> createFences(const uint32_t a_count)const;
-	VkSemaphore createSemaphore()const;
-	std::vector<VkSemaphore> createSemaphores(const uint32_t a_count)const;
+	[[nodiscard]] VkFence createFence()const;
+	[[nodiscard]] std::vector<VkFence> createFences(const uint32_t a_count)const;
+	[[nodiscard]] VkSemaphore createSemaphore()const;
+	[[nodiscard]] std::vector<VkSemaphore> createSemaphores(const uint32_t a_count)const;
+	[[nodiscard]] constexpr VkDevice device()const noexcept { return m_device; }
+	[[nodiscard]] constexpr VkInstance instance()const noexcept { return m_vulkanInstance; }
 };

@@ -186,6 +186,7 @@
     <ClCompile Include="VkApplication.cpp" />
     <ClCompile Include="VkEngineCommandQueue.cpp" />
     <ClCompile Include="VkEngineDevice.cpp" />
+    <ClCompile Include="VkEngineImage.cpp" />
     <ClCompile Include="VkEngineObject.cpp" />
     <ClCompile Include="VkException.cpp" />
     <ClCompile Include="VkQueueStack.cpp" />

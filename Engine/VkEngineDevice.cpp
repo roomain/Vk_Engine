@@ -4,6 +4,7 @@
 #include "VkEngineDevice.h"
 #include "VkSwapChain.h"
 #include "VkEngineCommandQueue.h"
+#include "VkEngineImage.h"
 
 void VkEngineDevice::getQueueFamilies(const VKDeviceInfo& a_info, const VkQueueFlags a_flag, std::vector<uint32_t>& a_vFamily)
 {
@@ -21,6 +22,8 @@ VkEngineDevice::VkEngineDevice(const VkInstance a_vkInstanceHandle, const VkPhys
     const VkDevice a_logical, const QueueConfMap& a_queueConf) : VkEngineObject{ a_vkInstanceHandle, a_logical }
     , m_physical{ a_physical }
 {
+    // Memory properties are used regularly for creating all kinds of buffers
+    vkGetPhysicalDeviceMemoryProperties(a_physical, &m_memProp);
     for (const auto& [flag, list] : a_queueConf)
     {
         for (const auto& queueConf : list)
@@ -45,7 +48,7 @@ VkEngineDevice::~VkEngineDevice()
 std::shared_ptr<VkSwapChain> VkEngineDevice::createSwapChain(const VkSwapChainConf& a_configuration)
 {
     // use new instead of std::make_shared because ctor is private
-   return std::shared_ptr<VkSwapChain>(new VkSwapChain(shared_from_this(), a_configuration));
+   return std::shared_ptr<VkSwapChain>(new VkSwapChain(weak_from_this(), a_configuration));
 }
 
 std::shared_ptr<VkEngineCommandQueue>  VkEngineDevice::createCommandQueue(const uint32_t a_familyIndex)const
@@ -53,6 +56,12 @@ std::shared_ptr<VkEngineCommandQueue>  VkEngineDevice::createCommandQueue(const 
     if(const auto iter = m_Queues.find(a_familyIndex); iter != m_Queues.cend())
         return m_Queues.at(a_familyIndex).createCommandQueue(m_device, a_familyIndex);
     return nullptr;
+}
+
+std::shared_ptr<VkEngineImage> VkEngineDevice::createImage(const VkImageCreateInfo& a_imageInfo)
+{
+    // use new instead of std::make_shared because ctor is private
+    return std::shared_ptr<VkEngineImage>(new VkEngineImage(weak_from_this(), a_imageInfo));
 }
 
 void VkEngineDevice::waitForDeviceIdle()
@@ -94,4 +103,32 @@ bool VkEngineDevice::checkDeviceExtension(VkPhysicalDevice a_device, const std::
         }
     }
     return true;
+}
+
+
+uint32_t VkEngineDevice::getMemoryType(const uint32_t a_typeBits, const VkMemoryPropertyFlags a_properties, VkBool32* a_memTypeFound) const
+{
+    for (uint32_t iMemIndex = 0; iMemIndex < m_memProp.memoryTypeCount; iMemIndex++)
+    {
+        uint32_t mask = 1 << iMemIndex;
+        if ((a_typeBits & mask) == mask && 
+            (m_memProp.memoryTypes[iMemIndex].propertyFlags & a_properties) == a_properties)
+        {
+            if (a_memTypeFound)
+            {
+                *a_memTypeFound = true;
+            }
+            return iMemIndex;
+        }
+    }
+
+    if (a_memTypeFound)
+    {
+        *a_memTypeFound = false;
+        return 0;
+    }
+    else
+    {
+        throw std::runtime_error("Could not find a matching memory type");
+    }
 }
