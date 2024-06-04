@@ -162,6 +162,7 @@
     <ClInclude Include="VkEngineCommandQueue.h" />
     <ClInclude Include="VkEngineImage.h" />
     <ClInclude Include="VkEngineObject.h" />
+    <ClInclude Include="VKImageInterface.h" />
     <ClInclude Include="VkQueueStack.h" />
     <ClInclude Include="VkSwapChain.h" />
     <ClInclude Include="vk_check.h" />
