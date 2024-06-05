@@ -15,11 +15,15 @@ protected:
 	VkImageView m_imageView = VK_NULL_HANDLE;			/*!< image view*/
 
 public:
+	explicit VkImageInterface(const VkImage a_image, VkImageView a_imageView) : m_image{ a_image }, m_imageView{ a_imageView } {}
+	VkImageInterface() = default;
+	virtual ~VkImageInterface() = default;
+
 	[[nodiscard]] constexpr bool isValid()const noexcept { return m_image != VK_NULL_HANDLE; }
 	[[nodiscard]] constexpr VkImage image() const noexcept { return m_image; }
 	[[nodiscard]] constexpr VkImageView imageView() const noexcept { return m_imageView; }
-	[[nodiscard]] virtual constexpr uint32_t width() const noexcept = 0;
-	[[nodiscard]] virtual constexpr uint32_t height() const noexcept = 0;
-	[[nodiscard]] virtual constexpr uint32_t depth() const noexcept = 0;
-	[[nodiscard]] virtual constexpr VkFormat format() const noexcept = 0;
+	[[nodiscard]] virtual uint32_t width() const noexcept = 0;
+	[[nodiscard]] virtual uint32_t height() const noexcept = 0;
+	[[nodiscard]] virtual uint32_t depth() const noexcept = 0;
+	[[nodiscard]] virtual VkFormat format() const noexcept = 0;
 };

@@ -1,9 +1,11 @@
 #include "pch.h"
+#include "VkSwapChainImage.h"
 #include "VkSwapChain.h"
 #include "VkEngineDevice.h"
-#include "vk_initializers.h"
 
-VkSwapChain::VkSwapChain(const VkEngineDeviceWPtr& a_device, const VkSwapChainConf& a_configuration) : m_device{ a_device }, m_createFun { a_configuration.CreationCb }, m_useVSync{ a_configuration.UseVSync }
+VkSwapChain::VkSwapChain(const VkEngineDeviceWPtr& a_device, const VkSwapChainConf& a_configuration) : 
+	m_device{ a_device }, m_imageSize{ a_configuration.Extent }, m_createFun {a_configuration.CreationCb}, 
+	m_useVSync{ a_configuration.UseVSync }
 {
 	update(a_configuration.Extent);
 }
@@ -24,9 +26,10 @@ void VkSwapChain::realeaseSwapchain(VkEngineDevicePtr a_device, VkSwapchainKHR& 
 {
 	if (a_swapchain != VK_NULL_HANDLE)
 	{
-		for(auto& buffer : m_bufferStack)
-			vkDestroyImageView(a_device->m_device, buffer.view, nullptr);
+		for(const auto& buffer : m_imageStack)
+			vkDestroyImageView(a_device->m_device, buffer->imageView(), nullptr);
 		vkDestroySwapchainKHR(a_device->m_device, a_swapchain, nullptr);
+		m_imageStack.clear();
 	}
 }
 
@@ -116,7 +119,7 @@ VkCompositeAlphaFlagBitsKHR VkSwapChain::findBestCompisiteAlphaFlag(const VkSurf
 		{
 			compositeAlpha = compositeAlphaFlag;
 			break;
-		};
+		}
 	}
 
 	return compositeAlpha;
@@ -139,12 +142,12 @@ void VkSwapChain::update(const VkExtent2D& a_extent)
 	VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(pDevice->m_physical, m_surface, &surfCaps));
 	
 
-	VkExtent2D swapchainExtent = a_extent;
+	m_imageSize = a_extent;
 	// If width (and height) equals the special value 0xFFFFFFFF, the size of the surface will be set by the swapchain
 	if (surfCaps.currentExtent.width != (uint32_t)-1)
 	{
 		// If the surface size is defined, the swap chain size must match
-		swapchainExtent = surfCaps.currentExtent;
+		m_imageSize = surfCaps.currentExtent;
 
 		// Select a present mode for the swapchain
 		
@@ -172,16 +175,15 @@ void VkSwapChain::update(const VkExtent2D& a_extent)
 		// Find a supported composite alpha format (not all devices support alpha opaque)
 		VkCompositeAlphaFlagBitsKHR compositeAlpha = VkSwapChain::findBestCompisiteAlphaFlag(surfCaps);
 
-		VkFormat colorFormat;
 		VkColorSpaceKHR colorSpace;
-		findBestColorFormat(pDevice, m_surface, colorFormat, colorSpace);
+		findBestColorFormat(pDevice, m_surface, m_imageFormat, colorSpace);
 
 		VkSwapchainCreateInfoKHR swapchainCI = gen_swapChainCreateInfo();
 		swapchainCI.surface = m_surface;
 		swapchainCI.minImageCount = desiredNumberOfSwapchainImages;
-		swapchainCI.imageFormat = colorFormat;
+		swapchainCI.imageFormat = m_imageFormat;
 		swapchainCI.imageColorSpace = colorSpace;
-		swapchainCI.imageExtent = { swapchainExtent.width, swapchainExtent.height };
+		swapchainCI.imageExtent = { m_imageSize.width, m_imageSize.height };
 		swapchainCI.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 		swapchainCI.preTransform = (VkSurfaceTransformFlagBitsKHR)preTransform;
 		swapchainCI.imageArrayLayers = 1;
@@ -210,19 +212,32 @@ void VkSwapChain::update(const VkExtent2D& a_extent)
 		realeaseSwapchain(pDevice, oldSwapchain);
 
 		// get swapchain images
+		// remake with swapchain images
 		uint32_t imageCount = 0;
 		VK_CHECK(vkGetSwapchainImagesKHR(pDevice->m_device, m_swapChain, &imageCount, nullptr));
 		std::vector<VkImage> imageStack(imageCount);
 		VK_CHECK(vkGetSwapchainImagesKHR(pDevice->m_device, m_swapChain, &imageCount, imageStack.data()));
-		m_bufferStack.resize(imageCount);
+
+		m_imageStack.resize(imageCount);
 		int bufferIndex = 0;
 		for (auto image : imageStack)
 		{
-			VkImageViewCreateInfo info = gen_imageViewCreateInfo(colorFormat, image);
-			m_bufferStack[bufferIndex].image = image;
-			VK_CHECK(vkCreateImageView(pDevice->m_device, &info, nullptr, &m_bufferStack[bufferIndex].view));
-			++bufferIndex;
+			VkImageViewCreateInfo info = gen_imageViewCreateInfo(m_imageFormat, image);
+			VkImageView view;
+			VK_CHECK(vkCreateImageView(pDevice->m_device, &info, nullptr, &view));
+			if (m_imageStack[bufferIndex])
+			{
+				// update
+				m_imageStack[bufferIndex]->update(image, view);
+			}
+			else
+			{
+				// create
+				// use new instead of std::make_shared because ctor is private
+				m_imageStack[bufferIndex] = VkSwapChainImagePtr(new VkSwapChainImage(image, view, bufferIndex, weak_from_this()));
+			}
 		}
+
 	}
 }
 

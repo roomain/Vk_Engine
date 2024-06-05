@@ -23,33 +23,30 @@ struct VkSwapChainConf
 };
 
 
-struct VkSwpaChainBuffer
-{
-	VkImage image;		/*!< link to swapchain image*/
-	VkImageView view;	/*!< view of image*/
-};
 
-using ImgeBufferStack = std::vector<VkSwpaChainBuffer>;
+class VkSwapChainImage;
+using VkSwapChainImagePtr = std::shared_ptr<VkSwapChainImage>;
+using SwapChainImageBuffer = std::vector<VkSwapChainImagePtr>;
 
 class VkEngineDevice;
 
 using VkEngineDeviceWPtr = std::weak_ptr<VkEngineDevice>;
 using VkEngineDevicePtr = std::shared_ptr<VkEngineDevice>;
 
-class ENGINE_EXPORT VkSwapChain
+class ENGINE_EXPORT VkSwapChain : public std::enable_shared_from_this<VkSwapChain>
 {
 	friend class VkEngineDevice;
 
 private:
-	VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;	/*!< vulkan swapchain*/
-	VkSurfaceKHR m_surface = VK_NULL_HANDLE;		/*!< vulkan surface*/
-	VkEngineDeviceWPtr m_device;					/*!< associated device*/
+	VkSwapchainKHR m_swapChain = VK_NULL_HANDLE;			/*!< vulkan swapchain*/
+	VkSurfaceKHR m_surface = VK_NULL_HANDLE;				/*!< vulkan surface*/
+	VkEngineDeviceWPtr m_device;							/*!< associated device*/
+	VkExtent2D m_imageSize;									/*!< swapchain image size*/
+	VkFormat m_imageFormat = VkFormat::VK_FORMAT_UNDEFINED;	/*!< swapchain image format*/
+	SwapChainImageBuffer m_imageStack;						/*!< swapchain image stack*/
 
-	ImgeBufferStack m_bufferStack;					/*!< image buffer stack*/
-
-
-	VkCreateSurface m_createFun;					/*!< vullkan surface creation callback*/
-	bool m_useVSync = true;							/*!< use vsync*/
+	VkCreateSurface m_createFun;							/*!< vullkan surface creation callback*/
+	bool m_useVSync = true;									/*!< use vsync*/
 
 	static VkCompositeAlphaFlagBitsKHR findBestCompisiteAlphaFlag(const VkSurfaceCapabilitiesKHR& surfCaps);
 	static void findBestColorFormat(const VkEngineDevicePtr& a_device, const VkSurfaceKHR& a_surface, VkFormat& a_colorFormat, VkColorSpaceKHR& a_colorSpace);
@@ -60,14 +57,16 @@ private:
 
 public:
 	VkSwapChain() = delete;
-	~VkSwapChain();
+	~VkSwapChain() override;
 	void update(const VkExtent2D& a_extent);
 
 	/*@brief acquire next image of swapchain*/
 	void aquireNextImage(VkSemaphore a_presentCompleteSemaphore, uint32_t& a_imageIndex, VkFence a_fence = nullptr)const;
 	/*@brief enqueue present image*/
-	VkResult queuePresentImage(VkQueue a_queue, const uint32_t a_imageIndex, VkSemaphore a_semaphore)const;
-	uint32_t imageStackCount() const noexcept { return static_cast<uint32_t>(m_bufferStack.size()); }
+	[[nodiscard]] VkResult queuePresentImage(VkQueue a_queue, const uint32_t a_imageIndex, VkSemaphore a_semaphore)const;
+	[[nodiscard]] uint32_t imageStackCount() const noexcept { return static_cast<uint32_t>(m_imageStack.size()); }
+	[[nodiscard]] constexpr VkExtent2D imageExtent()const noexcept { return m_imageSize; }
+	[[nodiscard]] constexpr VkFormat imageFormat()const noexcept { return m_imageFormat; }
 };
 
 using VkSwapChainPtr = std::shared_ptr<VkSwapChain>;

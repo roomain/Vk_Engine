@@ -165,6 +165,7 @@
     <ClInclude Include="VKImageInterface.h" />
     <ClInclude Include="VkQueueStack.h" />
     <ClInclude Include="VkSwapChain.h" />
+    <ClInclude Include="VkSwapChainImage.h" />
     <ClInclude Include="vk_check.h" />
     <ClInclude Include="vk_deviceInfo.h" />
     <ClInclude Include="vk_engine_globals.h" />
@@ -192,6 +193,7 @@
     <ClCompile Include="VkException.cpp" />
     <ClCompile Include="VkQueueStack.cpp" />
     <ClCompile Include="VkSwapChain.cpp" />
+    <ClCompile Include="VkSwapChainImage.cpp" />
     <ClCompile Include="vk_parameters.cpp" />
     <ClCompile Include="vk_struct_display.cpp" />
   </ItemGroup>
