@@ -4,6 +4,7 @@
 * @date 26 / 05 / 2024
 * @author Roomain
 ************************************************/
+#include <memory>
 #include <vulkan/vulkan.hpp>
 #include "vk_engine_globals.h"
 
@@ -27,3 +28,5 @@ public:
 	[[nodiscard]] virtual uint32_t depth() const noexcept = 0;
 	[[nodiscard]] virtual VkFormat format() const noexcept = 0;
 };
+
+using VkImageInterfacePtr = std::shared_ptr< VkImageInterface>;

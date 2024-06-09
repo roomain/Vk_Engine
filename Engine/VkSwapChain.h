@@ -57,7 +57,7 @@ private:
 
 public:
 	VkSwapChain() = delete;
-	~VkSwapChain() override;
+	~VkSwapChain();
 	void update(const VkExtent2D& a_extent);
 
 	/*@brief acquire next image of swapchain*/
@@ -67,6 +67,7 @@ public:
 	[[nodiscard]] uint32_t imageStackCount() const noexcept { return static_cast<uint32_t>(m_imageStack.size()); }
 	[[nodiscard]] constexpr VkExtent2D imageExtent()const noexcept { return m_imageSize; }
 	[[nodiscard]] constexpr VkFormat imageFormat()const noexcept { return m_imageFormat; }
+	[[nodiscard]] VkSwapChainImagePtr image(const uint32_t a_index)const noexcept;
 };
 
 using VkSwapChainPtr = std::shared_ptr<VkSwapChain>;

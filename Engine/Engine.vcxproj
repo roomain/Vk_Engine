@@ -160,9 +160,10 @@
     <ClInclude Include="VkApplication.h" />
     <ClInclude Include="VkEngineDevice.h" />
     <ClInclude Include="VkEngineCommandQueue.h" />
+    <ClInclude Include="VkEngineFrameBuffer.h" />
     <ClInclude Include="VkEngineImage.h" />
     <ClInclude Include="VkEngineObject.h" />
-    <ClInclude Include="VKImageInterface.h" />
+    <ClInclude Include="VkImageInterface.h" />
     <ClInclude Include="VkQueueStack.h" />
     <ClInclude Include="VkSwapChain.h" />
     <ClInclude Include="VkSwapChainImage.h" />
@@ -188,6 +189,7 @@
     <ClCompile Include="VkApplication.cpp" />
     <ClCompile Include="VkEngineCommandQueue.cpp" />
     <ClCompile Include="VkEngineDevice.cpp" />
+    <ClCompile Include="VkEngineFrameBuffer.cpp" />
     <ClCompile Include="VkEngineImage.cpp" />
     <ClCompile Include="VkEngineObject.cpp" />
     <ClCompile Include="VkException.cpp" />

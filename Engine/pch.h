@@ -13,4 +13,5 @@
 #include "vk_initializers.h"
 #include "vk_deviceInfo.h"
 #include "vk_parameters.h"
+#include "VkEngineDevice.h"
 #endif //PCH_H

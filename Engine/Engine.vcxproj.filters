@@ -81,10 +81,13 @@
     <ClInclude Include="VkEngineImage.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="VKImageInterface.h">
+    <ClInclude Include="VkImageInterface.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
     <ClInclude Include="VkSwapChainImage.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
+    <ClInclude Include="VkEngineFrameBuffer.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>
@@ -126,6 +129,9 @@
       <Filter>Fichiers sources</Filter>
     </ClCompile>
     <ClCompile Include="VkSwapChainImage.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
+    <ClCompile Include="VkEngineFrameBuffer.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
   </ItemGroup>

@@ -168,3 +168,8 @@
 {
 	return VkSemaphoreCreateInfo{ .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO, .pNext = nullptr, .flags = a_flag};
 }
+
+[[nodiscard]] constexpr VkFramebufferCreateInfo init_FrameBuffer()
+{
+	return VkFramebufferCreateInfo{ .sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO, .pNext = nullptr };
+}

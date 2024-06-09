@@ -260,3 +260,10 @@ VkResult VkSwapChain::queuePresentImage(VkQueue a_queue, const uint32_t a_imageI
 	}
 	return vkQueuePresentKHR(a_queue, &presentInfo);
 }
+
+VkSwapChainImagePtr VkSwapChain::image(const uint32_t a_index)const noexcept
+{
+	if (m_imageStack.size() > a_index)
+		return m_imageStack[a_index];
+	return nullptr;
+}
