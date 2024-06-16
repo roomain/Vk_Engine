@@ -4,6 +4,7 @@
 * @date 16 / 06 / 2024
 * @author Roomain
 ************************************************/
+#include "vk_engine_globals.h"
 #include "DataMatrix.h"
 #include "vulkan/vulkan.hpp"
 
@@ -21,14 +22,15 @@ struct TransitionLayout
 
 struct AttachmentDesc
 {
+	VkFormat imgFormat;
 	TransitionLayout transition;
 	AttachmentOperator colorOp;
 	AttachmentOperator depthOp;
 };
 
-class VkEngineFrameBufferAttachment : public DataMatrix<VkImageView, VkAttachmentDescription, VkAttachmentReference>
+class ENGINE_EXPORT VkEngineFrameBufferAttachment : public DataMatrix<VkImageView, VkAttachmentDescription, VkAttachmentReference>
 {
 public:
-	void appendColorAttachment(const VkImageView a_imgView, const VkFormat a_imgFormat, const AttachmentDesc& a_imgAttachDesc);
-	void appendDepthAttachment(const VkImageView a_imgView, const AttachmentDesc& a_imgAttachDesc);
+	void appendColorAttachment(const VkImageView a_imgView, const AttachmentDesc& a_imgAttachDesc, const VkImageLayout a_refLayout);
+	void update(const VkImageView a_imgView, const size_t& a_index);
 };
