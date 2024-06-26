@@ -47,10 +47,6 @@ VkEngineFrameBuffer::~VkEngineFrameBuffer()
 	}
 }
 
-void VkEngineFrameBuffer::attach(const VkImageUsageFlags& a_flag, const VkImageInterfacePtr& a_image)
-{
-	m_attachment[a_flag] = a_image;
-}
 
 void VkEngineFrameBuffer::update()
 {
@@ -81,11 +77,4 @@ void VkEngineFrameBuffer::update()
 
 		VK_CHECK(vkCreateFramebuffer(device, &m_info, nullptr, &m_frameBuffer));
 	}*/
-}
-
-VkImageInterfacePtr VkEngineFrameBuffer::attachment(const VkImageUsageFlags& a_flag)const noexcept
-{
-	if (auto iter = m_attachment.find(a_flag); iter != m_attachment.cend())
-		return iter->second;
-	return nullptr;
 }
